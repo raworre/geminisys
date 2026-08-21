@@ -1,0 +1,2 @@
+# Auto-detect text files and normalize line endings to LF (Linux/WSL style)
+* text=auto eol=lf
