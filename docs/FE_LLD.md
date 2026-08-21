@@ -1,7 +1,7 @@
 # Geminisys Frontend Low-Level Design
 
 **Project:** Geminisys / Omni-Director
-**Audience:** Luckii (UI owner), with backend support from the software engineer on the project
+**Audience:** Luckii (UI owner), with backend support from Hrothgar (software engineer)
 **Status:** MVP implementation specification
 **Primary recommendation:** Local web app using HTML, CSS, and JavaScript, served by the Python backend
 
@@ -13,9 +13,11 @@ The frontend is a **dumb client**. It displays information, collects player inpu
 
 The MVP frontend must support:
 
-- A shared narrative stage showing the GM response and recent actions.
+- A campaign-selection screen shown before any character selection.
+- A shared narrative stage showing the GM response and recent actions, intended for a TV or separate monitor.
 - A visible mechanics callout attached to a GM response.
-- A character console for either Warlock or Luckii.
+- The same player-console UI shown in two windows, one for each player; each window displays the character selected from the active campaign and that character's data.
+- A character-selection dropdown populated by the selected campaign.
 - Wounds and strain trackers with current and maximum values.
 - Text action entry.
 - In-character / out-of-character input selection.
@@ -24,6 +26,8 @@ The MVP frontend must support:
 - Staging an action before resolution.
 - A resolve-scene control for the shared session.
 - TTS controls represented in the UI, with playback integration added after the MVP.
+
+The MVP is designed for desktop and laptop displays. A mobile layout is explicitly out of scope for now.
 
 The frontend should work in two modes:
 
@@ -40,13 +44,14 @@ A local web app is the best fit for this project and for the current skill set:
 - HTML and CSS provide a direct bridge from visual art and layout into UI design.
 - The Python server can expose JSON endpoints without requiring a new desktop GUI framework.
 - The browser gives useful built-in controls for forms, buttons, scrolling, responsive layout, and audio.
-- A single page can later be opened on two devices if the backend is made reachable on the local network.
+- The same frontend can be opened in separate browser windows for the narrative display and both player consoles.
+- The backend can later coordinate those windows over the local network without requiring a separate UI technology.
 
 The first version should use plain HTML, CSS, and JavaScript. A framework is not required for the MVP. If the interface later becomes difficult to maintain, the existing component boundaries can be migrated to a framework without changing the API contract.
 
 ### 2.2 Visual direction
 
-Use a **warm spacecraft operations console** rather than a generic green terminal. The interface should feel like a game table: readable under low light, tactile, and slightly dramatic without making the text difficult to scan.
+Use a **neutral tabletop interface** rather than a setting-specific visual style or generic green terminal. The interface should feel clear, readable, and tactile, with enough personality to feel like a game table without suggesting that the campaign takes place in space, fantasy, horror, or any other particular setting. Future skins can add those identities without changing the underlying layout or usability.
 
 Suggested visual language:
 
@@ -61,52 +66,109 @@ Suggested visual language:
 
 Choose colors by function, not decoration. Every important meaning must also be communicated by text, position, or icon shape so color is never the only signal.
 
-### 2.3 Layout principle
+### 2.3 Display roles and layout
 
-The shared narrative is the largest area. Player controls remain close to the bottom or side so a player can read the scene, compose an action, add a roll, and stage it without losing context.
+The frontend has three display roles. They may use the same codebase, but each window shows a focused view:
 
-Desktop layout:
+1. **Campaign Selector:** the first screen shown when a window has no active campaign.
+2. **Narrative Display:** a read-focused shared stage for a TV or separate monitor. It shows the campaign title, GM narration, mechanics callouts, and recent actions. It does not show private player input controls.
+3. **Player Console:** one reusable console layout for one player. The same layout is rendered in two windows; only the selected campaign/character data and resulting labels and tracker values differ.
+
+The campaign is selected before the character. Once a campaign is selected, the character dropdown is populated only with characters belonging to that campaign. A player cannot select a character from another campaign.
+
+For the MVP, the display role can be chosen through a setup control or URL parameter, such as `?view=narrative` or `?view=player`. The player view then asks for the campaign and character. The narrative view asks only for the campaign.
+
+Narrative display layout:
 
 ```text
 +---------------------------------------------------------------+
-| Header: session name | connection | model | audio              |
+| Campaign title | connection | model | audio                    |
 +-------------------------------+-------------------------------+
-| Narrative Stage                | Character Console             |
-| GM narration                   | Character identity            |
-| Mechanics callouts             | Wounds / strain               |
-| Recent staged actions          | action input                  |
-|                               | dice tray                     |
+|                                                               |
+|                     NARRATIVE STAGE                           |
+|                     GM narration                             |
+|                     Mechanics callouts                        |
+|                     Recent actions                            |
+|                                                               |
 +-------------------------------+-------------------------------+
-| Shared footer: staged count | Resolve Scene                    |
+| Session status | Staged count | Resolve Scene                  |
 +---------------------------------------------------------------+
 ```
 
-Mobile layout:
+Player console layout:
 
-1. Header and connection status.
-2. Character identity and trackers.
-3. Narrative stage.
-4. Action composer.
-5. Dice tray.
-6. Staging and resolve controls.
+```text
++---------------------------------------+
+| Campaign | character | connection     |
++---------------------------------------+
+| Character identity and trackers       |
+| Wounds / strain / secondary stats     |
++---------------------------------------+
+| Action composer                       |
+| IC / OOC | text | Stage Action        |
++---------------------------------------+
+| Dice tray                             |
+| Six result counters | Clear Roll      |
++---------------------------------------+
+| Staged actions | Resolve Scene        |
++---------------------------------------+
+```
 
-The dice tray must remain usable on a narrow screen. Its six result controls should wrap into two rows rather than shrink until labels become unreadable.
+The two player consoles are independent instances of the same UI, showing different selected-character data within the same campaign. The narrative display is also independent, but all three views must refresh when a scene is resolved. Responsive mobile behavior is not required for the MVP; use stable desktop dimensions and test common laptop and TV resolutions instead.
+
+#### Narrative display waiting state
+
+While the campaign is being selected, or while the selected campaign has no resolved scene yet, the narrative display should show a simple title state rather than an empty panel. It can include:
+
+- The `GEMINISYS` title.
+- The selected campaign name, when one is available.
+- A quiet status message such as `Awaiting campaign selection` or `Awaiting first scene`.
+- A persistent connection status such as `Connected`, `Connecting`, `Mock Mode`, or `Offline`.
+
+For the MVP, this should be a polished static composition. After the campaign-selection, staging, resolution, and synchronization flows are reliable, an optional simple ambient animation may be added to this title state. Examples include a slow background texture shift, a restrained light movement, or a gentle title reveal. It should remain low-motion, nonessential, and easy to disable so it does not distract from the game or create accessibility problems.
+
+### 2.4 Future theme support
+
+The frontend should remain open to themed skins, but skin creation is not an MVP feature. This does require one small implementation decision now: put colors, fonts, borders, spacing, and major visual effects behind CSS custom properties rather than scattering literal values through the stylesheet.
+
+The functional color scheme is a permanent accessibility and usability layer. The colors for healthy status, wounds, strain, staged attention, and other connection or state indicators must not change between themes. A skin may change decorative colors, textures, typography, borders, and atmosphere, but it must not override or repurpose functional color tokens.
+
+For example:
+
+```css
+:root {
+  --color-background: #10151b;
+  --color-text: #f4ead8;
+  --color-accent: #e7aa45;
+  --color-attention: #e7aa45;
+  --color-healthy: #72b85a;
+  --color-wounds: #d46a5f;
+  --color-strain: #5fc4d4;
+}
+```
+
+A future theme can load a second theme class without changing the HTML structure or JavaScript, but it must leave the functional tokens above unchanged. Keep the semantic meanings and exact functional colors stable across every skin so players can rely on them and so color-based information remains accessible. Do not build a theme picker until the base interface has been playtested.
 
 ## 3. Frontend Components
 
-### 3.1 App shell
+### 3.1 App shell (the browser window's shared frame)
+
+“App shell” means the persistent outer frame of the frontend window: the header, status area, page background, and the region into which the current view is rendered. It is essentially the window's reusable structure, not a separate operating-system window or a special framework.
 
 Responsibilities:
 
-- Load the initial state on startup.
+- Load campaign choices on startup.
+- Load characters only after a campaign has been selected.
+- Render the correct display role: campaign selector, narrative display, or player console.
 - Track whether the app is in mock or connected mode.
 - Display connection/loading/error status.
 - Route data into child components.
 - Never modify state files directly.
 
-Suggested DOM regions:
+Suggested DOM regions for the focused views:
 
 - `#app-header`
+- `#campaign-selector`
 - `#narrative-stage`
 - `#character-console`
 - `#action-composer`
@@ -117,15 +179,49 @@ Suggested DOM regions:
 
 Displays:
 
-- `GEMINISYS` and current session/campaign name.
-- Active character selector: Warlock or Luckii.
+- `GEMINISYS` and current campaign name.
+- Active character selector on player consoles only.
 - Backend status: Connecting, Connected, Mock Mode, or Error.
 - Model label: Flash or Pro. The control may be display-only until model selection exists in the backend.
 - TTS toggle and replay-last-narration button.
 
 The header is informational and should not compete visually with the narrative.
 
-### 3.3 Narrative stage
+#### Header menu
+
+The header should include a small menu for secondary actions. Keep immediate gameplay actions such as `Stage Action` and `Resolve Scene` visible on the page rather than hiding them in this menu.
+
+MVP menu options:
+
+- **Change Campaign:** return to campaign selection and clear the current window's selected character. The shared campaign session should not be deleted or reset by this action.
+- **Audio:** access TTS on/off and replay-last-narration controls.
+- **Connection Status:** show the current connection state and provide `Retry` when the backend is unavailable.
+- **Reset View:** restore this window's view and local UI preferences without changing campaign or character data.
+
+Future option:
+
+- **Change Character:** keep this available as a later option for player consoles if the use case grows to require switching characters during a session. It is not required for the current MVP workflow.
+
+The menu should be available on all display roles, but it should show only options that make sense for the current window. For example, a narrative display should not show player-character actions.
+
+### 3.3 Campaign selector
+
+The campaign selector is the first workflow step. It should show available campaigns as a simple list or dropdown with the campaign name and a brief description when available.
+
+Behavior:
+
+- No character dropdown is shown until a campaign is selected.
+- Selecting a campaign stores its stable campaign ID, not only its display name.
+- The player view then requests or receives the characters for that campaign, including each character's availability.
+- While a player is choosing, refresh the character list periodically at a modest interval, such as every 5 seconds, or when the dropdown receives focus. This is lightweight enough for the selection screen and avoids requiring real-time infrastructure for the MVP.
+- When a player selects a character, send a backend claim request before entering the console. The backend must atomically reserve that character for the current player-console/session so two players cannot claim the same character at the same time.
+- A character already claimed by the other player is disabled in the dropdown and labeled `Unavailable` or `In use`.
+- If a claim fails because the other player selected it first, refresh the list and ask the player to choose another available character without losing the rest of their setup.
+- Claims should have a short session lease or heartbeat so a disconnected or closed player console does not leave a character unavailable forever. An explicit release from `Change Campaign` should still happen when possible.
+- The narrative view enters the shared stage after campaign selection.
+- A `Change Campaign` control returns to this screen, releases the current character claim, and clears the selected character for that window. It must not delete or reset campaign data.
+
+### 3.4 Narrative stage
 
 Responsibilities:
 
@@ -133,6 +229,7 @@ Responsibilities:
 - Distinguish player actions from GM narration.
 - Keep the newest entry visible after a successful resolution.
 - Render mechanics as a separate, high-contrast callout under the relevant narration.
+- Render the title/waiting state when there is no active scene to display.
 
 An entry should have:
 
@@ -143,7 +240,9 @@ An entry should have:
 
 Do not show raw `[STATE_UPDATE: ...]` data in the UI. The backend interceptor owns that operation and returns clean presentation data.
 
-### 3.4 Character console
+### 3.5 Character console
+
+This is a reusable player-console component, not a separate Warlock screen and Luckii screen. Render it twice with the selected character record as its data input. Do not create character-specific markup or layouts unless a future gameplay requirement genuinely differs between characters.
 
 Displays the selected character's:
 
@@ -153,6 +252,8 @@ Displays the selected character's:
 - Soak value and defense as small secondary statistics.
 - Optional compact inventory summary.
 
+The character dropdown belongs here, above the character name. It is populated from the selected campaign and is independent in each player-console window. The two players may therefore choose different characters while remaining in the same campaign.
+
 Tracker behavior:
 
 - Wounds fill from green through amber to coral as current value approaches threshold.
@@ -160,7 +261,7 @@ Tracker behavior:
 - The numeric value is always visible above or inside the bar.
 - Values must not be editable in the player console. They are refreshed from `/api/state` after resolution.
 
-### 3.5 Action composer
+### 3.6 Action composer
 
 Controls:
 
@@ -178,7 +279,7 @@ Behavior:
 - On success, clear the composer and show the action in the staged-actions list.
 - On failure, retain the text and show a recoverable error.
 
-### 3.6 Dice tray
+### 3.7 Dice tray
 
 The tray contains one control for each Genesys result symbol. The visible label should include the name, not only an icon, because symbols and emoji render inconsistently across operating systems.
 
@@ -205,7 +306,7 @@ If every count is zero, omit the roll field rather than sending an empty roll st
 
 The dice tray is a frontend formatter only. It must not cancel opposing symbols or determine the final Genesys result.
 
-### 3.7 Staged-actions area and footer
+### 3.8 Staged-actions area and footer
 
 Show:
 
@@ -225,8 +326,14 @@ The browser maintains presentation state only:
 {
   mode: "mock" | "connected",
   connection: "loading" | "connected" | "error",
-  activeCharacter: "warlock" | "luckii",
-  characters: { warlock: {}, luckii: {} },
+  displayRole: "campaign-selector" | "narrative" | "player",
+  campaigns: [],
+  selectedCampaignId: null,
+  availableCharacters: [],
+  activeCharacterId: null,
+  playerConsoleId: null,
+  characterClaimStatus: "unclaimed" | "claiming" | "claimed" | "unavailable",
+  characters: {},
   campaignState: "",
   stagedActions: [],
   narrativeEntries: [],
@@ -249,24 +356,31 @@ The browser maintains presentation state only:
 
 The backend remains the source of truth for character data and campaign state. After `resolve`, the frontend must fetch `/api/state` again rather than trying to predict the new wound or strain values.
 
+Each browser window stores its display role, selected campaign ID, and, for a player console, selected character ID. These selections are window-specific UI state. The campaign itself and the character files remain backend state.
+
 ## 5. Interaction Flows
 
-### 5.1 Boot
+### 5.1 Boot and campaign selection
 
-1. Render a loading shell immediately.
-2. Request `GET /api/state`.
-3. Populate character trackers and campaign context.
-4. Set status to Connected.
-5. If the request fails, switch to Mock Mode or show a clear retry control, depending on the selected development mode.
+1. Render the app shell immediately with a loading status.
+2. Request the available campaigns.
+3. Show the campaign selector unless a valid campaign ID was supplied for a previously configured window.
+4. After campaign selection, request the selected campaign's characters.
+5. Narrative view enters the narrative display; player view shows the character dropdown.
+6. While the player is choosing, refresh the character list periodically or on dropdown focus.
+7. After character selection, claim the character through the backend before requesting state and populating that player's console.
+8. If a claim fails, refresh the list and keep the player on character selection.
+9. If a request fails, switch to Mock Mode or show a clear retry control, depending on the selected development mode.
 
 ### 5.2 Stage a text action
 
-1. Player selects their character.
-2. Player selects IC or OOC.
-3. Player types an action.
-4. Player optionally creates a dice result.
-5. Frontend formats the roll and sends `POST /api/intent`.
-6. Frontend adds a pending/staged entry and updates the staged count.
+1. Player selects a campaign if one is not already active.
+2. Player selects their character from the campaign's character dropdown.
+3. Player selects IC or OOC.
+4. Player types an action.
+5. Player optionally creates a dice result.
+6. Frontend formats the roll and sends `POST /api/intent` with the campaign and character IDs when supported.
+7. Frontend adds a pending/staged entry and updates the staged count.
 
 ### 5.3 Resolve the scene
 
@@ -291,7 +405,7 @@ Use the browser's audio element or Web Speech API for an initial prototype. The 
 These are part of the design, not polish to add at the end.
 
 - Loading: skeleton blocks or concise `Loading session...` labels.
-- No narrative: `No scene has been resolved yet.`
+- No narrative: show the narrative display title state with `Awaiting first scene` rather than an empty panel.
 - No staged actions: `Stage one or more actions to resolve the scene.`
 - Backend unavailable: show the problem, preserve the draft, and offer `Retry`.
 - Resolve failure: keep staged actions visible so the player does not lose work.
@@ -300,14 +414,70 @@ These are part of the design, not polish to add at the end.
 
 ## 7. Backend Contract
 
-The current server already provides these endpoints.
+The current server provides `/api/state`, `/api/intent`, and `/api/resolve`. Campaign selection requires the two additional endpoints described first below.
 
-### `GET /api/state`
+### `GET /api/campaigns`
 
-Current response shape:
+This endpoint is needed for the campaign-first startup flow. Recommended response:
 
 ```json
 {
+  "campaigns": [
+    {
+      "id": "campaign-001",
+      "name": "The Example Campaign",
+      "description": "Optional short description"
+    }
+  ]
+}
+```
+
+### `GET /api/campaigns/{campaign_id}/characters`
+
+This endpoint is needed to populate the character dropdown after campaign selection. Recommended response:
+
+```json
+{
+  "campaign_id": "campaign-001",
+  "characters": [
+    { "id": "luckii", "name": "Luckii", "available": true },
+    { "id": "warlock", "name": "Warlock", "available": false }
+  ]
+}
+```
+
+### `POST /api/campaigns/{campaign_id}/claims`
+
+Recommended request and response for reserving a character:
+
+```json
+{
+  "player_console_id": "player-console-1",
+  "character_id": "luckii"
+}
+```
+
+```json
+{
+  "status": "claimed",
+  "campaign_id": "campaign-001",
+  "character_id": "luckii"
+}
+```
+
+If the character is already claimed, return a conflict response such as HTTP `409` with `status: "unavailable"`. The frontend then refreshes the character list rather than assuming the claim succeeded.
+
+### `DELETE /api/campaigns/{campaign_id}/claims/{character_id}`
+
+Release the current player's claim when they choose `Change Campaign`, close the player-console session, or otherwise leave character setup. The backend should verify the `player_console_id` before releasing a claim.
+
+### `GET /api/state`
+
+The current server returns global state and does not yet accept a campaign ID. Recommended future shape:
+
+```json
+{
+  "campaign_id": "campaign-001",
   "warlock": { "...": "character data" },
   "luckii": { "...": "character data" },
   "campaign_state": "markdown text",
@@ -321,6 +491,7 @@ Request:
 
 ```json
 {
+  "campaign_id": "campaign-001",
   "character": "luckii",
   "action_text": "I search the terminal.",
   "dice_result": "[LUCKII ROLLS: 3 Success, 1 Threat]"
@@ -332,6 +503,8 @@ Current success response:
 ```json
 { "status": "staged", "message": "Luckii added to queue." }
 ```
+
+The existing server does not yet define campaign IDs. Until campaign storage is implemented, the mock mode can use the existing `warlock.json` and `luckii.json` files as the first campaign. Hrothgar should decide whether campaigns become folders, a registry file, or database records before connected campaign selection is implemented.
 
 ### `POST /api/resolve`
 
@@ -363,23 +536,24 @@ Until that exists, the frontend may display the entire clean response as narrati
 
 ### Phase A: Paper and visual prototype
 
-1. Draw the desktop layout on paper or in a simple image editor.
-2. Draw the mobile layout separately; do not assume desktop will naturally collapse well.
+1. Draw the campaign selector, narrative display, and player console separately on paper or in a simple image editor.
+2. Decide which information belongs on the TV and which belongs only on player consoles.
 3. Decide the names, colors, typography, spacing, and result-symbol treatments.
 4. Create three states for each important area: normal, loading, and error/empty.
-5. Ask the software engineer to review the component names and API assumptions before coding.
+5. Ask Hrothgar to review the component names and API assumptions before coding.
 
-Deliverable: one annotated desktop mockup and one annotated mobile mockup.
+Deliverable: one annotated mockup for each display role.
 
 ### Phase B: Static HTML and CSS
 
 1. Replace the placeholder markup in `frontend/index.html` with semantic sections.
 2. Create a stylesheet, keeping color and spacing values in CSS custom properties.
-3. Build the narrative stage, character console, action composer, and dice tray with sample data.
-4. Make the dice tray work visually at desktop and mobile widths.
-5. Add keyboard focus styles and labels before adding visual effects.
+3. Build the header menu with its MVP options and appropriate display-role filtering.
+4. Build the narrative stage, character console, action composer, and dice tray with sample data.
+5. Make the three views work at common laptop and TV resolutions.
+6. Add keyboard focus styles and labels before adding visual effects.
 
-Deliverable: a clickable-looking static screen that can be reviewed without Python.
+Deliverable: clickable-looking static screens that can be reviewed without Python.
 
 ### Phase C: Dice tray behavior
 
@@ -394,20 +568,23 @@ Deliverable: a tray that can be tested independently of the GM.
 
 ### Phase D: Mock-mode application behavior
 
-1. Add a small mock state object based on the files in `state/`.
-2. Implement `loadState`, `stageIntent`, and `resolveScene` functions with the same return shapes as the real API.
-3. Use a short fake delay for loading and resolving so loading states can be designed.
-4. Test empty input, zero dice, multiple dice types, and repeated staging.
+1. Add mock campaign data and assign the existing character files to the first campaign.
+2. Implement `loadCampaigns`, `loadCharacters`, `loadState`, `stageIntent`, and `resolveScene` functions with the same return shapes as the real API.
+3. Use a short fake delay for campaign loading, character loading, and resolving so loading states can be designed.
+4. Test campaign selection before character selection, empty input, zero dice, multiple dice types, and repeated staging.
 
 Deliverable: a complete rehearsal of the player workflow without a server.
 
 ### Phase E: Connected API behavior
 
-1. Replace mock functions with `fetch` calls behind the same three function names.
+1. Replace mock functions with `fetch` calls behind the same function names.
+2. Add campaign ID, character ID, player-console ID, and claim/release requests where the backend supports them.
 2. Keep the character object and all state update logic in the response-rendering layer.
 3. Refresh state after every successful resolution.
 4. Handle network errors without clearing the draft or staged actions.
-5. Test using the running FastAPI server.
+6. Test two player consoles claiming different characters, refreshing availability, handling a `409` conflict, releasing a claim, and reclaiming it.
+7. Test three browser windows together: one narrative display and two player consoles.
+8. Test using the running FastAPI server.
 
 Deliverable: text actions and dice rolls can travel from the browser to the Python holding pen and back as narration.
 
@@ -417,7 +594,9 @@ Deliverable: text actions and dice rolls can travel from the browser to the Pyth
 2. Add the hold-to-talk control only after a transcription endpoint exists.
 3. Add model selection when the backend exposes a model setting.
 4. Add animations sparingly: entry fade-in, resolving indicator, and tracker update.
-5. Playtest with real reading distance, low room lighting, and a phone-sized viewport.
+5. Playtest with real reading distance, low room lighting, and the actual TV and laptop resolutions.
+
+The title-screen animation is optional polish. Do not begin it until the static waiting state and the full campaign-to-resolution workflow are working.
 
 Deliverable: playable MVP with optional audio, not audio-dependent MVP.
 
@@ -440,7 +619,12 @@ Do not split every panel into its own file until the page becomes difficult to n
 The frontend MVP is complete when:
 
 - The page loads without a backend in Mock Mode.
-- A player can select Warlock or Luckii.
+- A campaign must be selected before its characters are shown.
+- A player can select a character from the selected campaign.
+- The header menu provides Change Campaign without deleting campaign data.
+- The narrative display can run without exposing player input controls.
+- The narrative display shows a title/waiting state instead of a blank panel before the first scene.
+- Two player consoles can select different characters in the same campaign.
 - Wounds and strain show readable `current / threshold` values.
 - A player can switch between IC and OOC.
 - Empty actions cannot be staged.
@@ -450,9 +634,11 @@ The frontend MVP is complete when:
 - Connected mode calls the three current API endpoints successfully.
 - State is refreshed after resolution rather than guessed by the browser.
 - Backend errors preserve user-entered text and explain how to retry.
-- The interface is usable with keyboard controls and at a mobile width.
+- The interface is usable with keyboard controls at common laptop and TV resolutions.
 - Raw state-update JSON is never displayed to players.
+- The visual system uses CSS custom properties so future skins can change decorative appearance without changing semantic UI behavior or any protected functional colors.
 - TTS and STT are clearly marked unavailable until their backend hooks exist.
+- Any title-screen animation is optional, low-motion, and does not block core gameplay.
 
 ## 11. Working Agreement
 
@@ -460,13 +646,15 @@ Luckii owns:
 
 - Information hierarchy.
 - Mockups, visual language, layout, CSS, and interaction feel.
-- Manual playtesting notes.
+- Manual playtesting notes for all three display roles.
 
-The software engineer owns or supports:
+Hrothgar owns or supports:
 
 - API contract changes.
 - FastAPI integration and CORS/network setup.
 - Mechanics parsing and state persistence.
 - Audio endpoints and deployment details.
+
+Before connected campaign selection is built, Hrothgar should confirm the campaign data model and the IDs used for campaigns and characters.
 
 Review together at the end of each phase. Keep the interface understandable before making it ornate. The most valuable early question is: can a player glance at the screen, understand the current state, stage an action, and tell what is waiting to be resolved?
