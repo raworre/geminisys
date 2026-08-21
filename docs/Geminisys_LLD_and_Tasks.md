@@ -1,63 +1,74 @@
-# Geminisys: Low-Level Design (LLD) & Task Tree
+# Geminisys: Backend Low-Level Design (LLD) & Task Tree
 
-**Goal:** Playable MVP by Saturday Evening.
-**Architecture Pattern:** Decoupled Client-Server (Frontend UI interacts with a local Python Backend Engine).
+**Goal:** Provide a Playable MVP by Saturday Evening.
+**Architecture Pattern:** Decoupled Client-Server. The Python Backend acts as the API Server and State Manager, driving a pure HTML/JS Frontend UI.
 
 ---
 
 ## 1. LOW-LEVEL ARCHITECTURE (LLD)
 
 ### A. The State Manager (Data Layer)
-*   **Files:** `genesys.schema.json`, `warlock.json`, `luckii.json`, `campaign_state.md`.
-*   **Logic:** A Python class (`StateManager`) that loads JSON/MD files into memory on boot. It provides methods to safely overwrite these files (e.g., `update_wounds(character, amount)`).
+*   **Files as DB:** `genesys.schema.json` (model definitions), `{campaign_id}/warlock.json`, `{campaign_id}/luckii.json`, `{campaign_id}/current_state.md`.
+*   **Logic:** A Python module (in `server.py` or `state.py`) that loads JSON/MD files into memory on boot. It provides methods to safely parse data through Pydantic models (from `models.py`) and write updates back to disk cleanly.
+*   **State Machine Coordinator:** The state manager oversees the 4-Phase loop: `INTENT_COLLECTION` -> `POOL_ASSIGNMENT` -> `ROLL_COLLECTION` -> `RESOLUTION`. 
 
-### B. The Context Injector (Prompt Pipeline)
-*   **Logic:** A Python class (`PromptBuilder`) that intercepts the user's raw input from the UI.
+### B. The Scene Orchestrator (API Endpoints)
+*(Note for Frontend/Luckii: The absolute source of truth for the API contract is the OpenAPI spec located at `api/omni-director-api.yaml`. Do not rely on legacy markdown contracts.)*
+*   **Logic:** FastAPI endpoints (`/api/...`) that accept player intents and rolls.
+*   **Process:**
+    1. During `INTENT_COLLECTION`, accepts POSTs to `/api/campaigns/{id}/intents`. 
+    2. Once all players have submitted their intents, transitions the state to `POOL_ASSIGNMENT`.
+    3. Calls the Prompt Builder to ping Gemini for the required dice pools.
+    4. Upon receiving the pools, updates state to `ROLL_COLLECTION` and exposes them in `/api/campaigns/{id}`.
+    5. During `ROLL_COLLECTION`, accepts POSTs to `/api/campaigns/{id}/rolls`.
+    6. Once all players have submitted their physical dice rolls, transitions to `RESOLUTION`.
+    7. Pings Gemini with intents + rolls for a cinematic narrative outcome.
+    8. Updates game state and loops back to `INTENT_COLLECTION`.
+
+### C. The Context Injector (Prompt Pipeline)
+*   **Logic:** A Python class (`PromptBuilder`) that constructs prompts for Gemini.
 *   **Process:** 
-    1. Reads `warlock.json` and `luckii.json`.
-    2. Reads `campaign_state.md`.
-    3. Bundles them into a hidden payload.
-    4. Appends the user's input (e.g., `[WARLOCK]: I shoot the door.`).
-    5. Sends the massive bundled prompt to the Gemini API.
+    1. Reads character JSONs (`warlock.json`, `luckii.json`).
+    2. Reads the campaign history (`current_state.md`).
+    3. Bundles them into a hidden system prompt context payload.
+    4. Appends the structured user intents (and optional rolls).
+    5. Sends the combined prompt to the Gemini API (via Antigravity CLI/Python SDK).
 
-### C. The Interceptor (Output Parser)
-*   **Logic:** A Regex/JSON parser that catches the LLM's raw response *before* it hits the UI.
+### D. The Interceptor (Output Parser)
+*   **Logic:** A Regex/JSON parser that catches the LLM's raw response before persisting it.
 *   **Process:**
     1. Scans for `[STATE_UPDATE: {...}]`.
-    2. If found, extracts the JSON, passes it to the `StateManager` to save to disk, and strips the block from the text.
+    2. If found, extracts the JSON, passes it to the `StateManager` to save character updates to disk, and strips the block from the text.
     3. Scans for `[MECHANICS: ...]`.
-    4. Passes the remaining narrative text and the mechanics block to the UI via a structured payload (e.g., a Python dictionary or JSON object).
-
-### D. The Presentation Layer (Frontend - Luckii's Domain)
-*   **Logic:** A Python GUI (PyQt, CustomTkinter, or local Web App) that remains entirely "dumb" to the rules. It only handles rendering text, catching button clicks, and triggering STT/TTS.
+    4. Extracts mechanical impacts for the frontend UI to display as special callouts.
+    5. Persists the clean narrative text to `current_state.md` and makes it available to the frontend.
 
 ---
 
 ## 2. DEPENDENCY TREE & TASK CHECKLIST
 
-*Use this as our master roadmap. Tasks are grouped by dependency. Luckii can operate completely independently on Phase 4 while we build Phases 2 & 3.*
+*Use this as the backend master roadmap. The Frontend (Phase 4 in previous planning) is entirely handled by Luckii in `FE_LLD.md`.*
 
 ### Phase 1: Foundation (Completed)
 - [x] High-Level Design (HLD) & Concept Approval
 - [x] Core JSON Schemas designed and formalized (`genesys.schema.json`)
+- [x] Pydantic models auto-generated (`models.py`)
+- [x] Initial FastAPI server scaffolding (`server.py`) with OpenAPI spec
 
-### Phase 2: The Core Engine (Backend - We are here)
-- [ ] **Task 2.1: The Master System Prompt.** Write the rules document that teaches Gemini how to negotiate dice pools, wait for "Staged Resolutions", and output `[STATE_UPDATE]` blocks. *(Blocks Phase 3)*
-- [ ] **Task 2.2: StateManager Script.** Write the Python functions to load and save the JSON/MD files safely.
-- [ ] **Task 2.3: API Hook.** Write a basic Python script that can send a prompt to the Gemini API and print the response.
+### Phase 2: State Machine Logic (We are here)
+- [ ] **Task 2.1: The 4-Phase Loop.** Implement state transitions in the backend (from `INTENT_COLLECTION` to `RESOLUTION`).
+- [ ] **Task 2.2: StateManager File IO.** Ensure `update_wounds(character, amount)` and similar functions safely overwrite the character JSONs to disk.
+- [ ] **Task 2.3: API Handlers.** fully implement `submit_intent` and `submit_roll` logic to check if all players are ready, triggering state transitions.
 
-### Phase 3: The Interceptor (Backend)
-- [ ] **Task 3.1: The Regex Parser.** Write the Python logic to extract state updates from the LLM's output. *(Depends on 2.1 & 2.2)*
-- [ ] **Task 3.2: Terminal Testing.** Run a mock combat encounter entirely in the terminal to prove the AI can auto-update the local JSON files when someone takes damage. *(Proves Backend MVP)*
+### Phase 3: Gemini Integration & Prompt Engineering
+- [ ] **Task 3.1: The Master System Prompt.** Write the instructions that teach Gemini how to assign dice pools during `POOL_ASSIGNMENT`, resolve scenes during `RESOLUTION`, and output `[STATE_UPDATE]` blocks.
+- [ ] **Task 3.2: SDK/CLI Hook.** Connect `PromptBuilder` to the Gemini API (via Antigravity Python SDK or `agy` CLI calls).
+- [ ] **Task 3.3: Output Interceptor.** Write the Python logic/regex to extract `[STATE_UPDATE]` and `[MECHANICS]` blocks from Gemini's responses.
 
-### Phase 4: The Presentation Layer (Frontend - Luckii)
-- [ ] **Task 4.1: UI Mockups.** Design the visual layout (Shared console, Staging Area, Narrative Stage, Dice Tray).
-- [ ] **Task 4.2: Framework Selection.** Decide on PyQt6, CustomTkinter, or Textual.
-- [ ] **Task 4.3: UI Skeleton.** Build the buttons and text boxes (even if they don't do anything yet).
-- [ ] **Task 4.4: The Dice Tray.** Build the visual component that converts clicks on the 6 Genesys symbols into a text string (e.g., `3 Success, 1 Threat`). *(Can be done concurrently with everything else).*
+### Phase 4: Integration Testing (Terminal MVP)
+- [ ] **Task 4.1: Terminal Mock Encounter.** Run a mock combat encounter entirely via raw API calls (e.g. `curl` or a test script) to prove the AI can assign pools, generate narrative, and auto-update the local JSON files. *(Proves Backend MVP)*
 
-### Phase 5: Integration & Audio (Saturday Morning)
-- [ ] **Task 5.1: The Hookup.** Connect Luckii's UI buttons to our Backend Python functions.
-- [ ] **Task 5.2: Voice Input (STT).** Integrate Whisper for hold-to-talk.
-- [ ] **Task 5.3: Voice Output (TTS).** Integrate ElevenLabs/OpenAI TTS for the GM's voice.
-- [ ] **Task 5.4: Playtest!**
+### Phase 5: UI Hookup & Polish (Saturday Morning)
+- [ ] **Task 5.1: The Handshake.** Serve the endpoints to Luckii's Frontend UI.
+- [ ] **Task 5.2: Network Tuning.** Test the 50-Foot HDMI/Mobile Hotspot setup for local VTT play.
+- [ ] **Task 5.3: Playtest!**
