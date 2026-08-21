@@ -147,6 +147,11 @@ For example:
 }
 ```
 
+Token roles:
+
+- `--color-attention` is the protected functional amber used for staged actions, pending decisions, or other states that require notice.
+- `--color-accent` is the general visual highlight used for interactive focus, selected controls, links, or branding. It may share the attention color initially, but it must not be used for functional state when a theme is allowed to change it.
+
 A future theme can load a second theme class without changing the HTML structure or JavaScript, but it must leave the functional tokens above unchanged. Keep the semantic meanings and exact functional colors stable across every skin so players can rely on them and so color-based information remains accessible. Do not build a theme picker until the base interface has been playtested.
 
 ## 3. Frontend Components
