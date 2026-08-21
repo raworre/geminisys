@@ -41,7 +41,7 @@ def apply_state_update(update_payload: dict):
     and applies them to the character files.
     """
     for character_name, stats in update_payload.items():
-        filepath = f"{character_name.lower()}.json"
+        filepath = f"state/{character_name.lower()}.json"
         if not os.path.exists(filepath):
             continue
             
@@ -82,7 +82,7 @@ async def ask_gm(prompt: str) -> str:
         try:
             print("[ENGINE] Attempting Fast API Route...")
             config = LocalAgentConfig(
-                system_instructions=load_file("genesys_gm.md"),
+                system_instructions=load_file("state/genesys_gm.md"),
                 api_key=api_key
             )
             async with Agent(config) as agent:
@@ -117,9 +117,9 @@ async def ask_gm(prompt: str) -> str:
 @app.get("/api/state")
 async def get_state():
     return {
-        "warlock": load_json("warlock.json"),
-        "luckii": load_json("luckii.json"),
-        "campaign_state": load_file("current_state.md"),
+        "warlock": load_json("state/warlock.json"),
+        "luckii": load_json("state/luckii.json"),
+        "campaign_state": load_file("state/current_state.md"),
         "holding_pen": [a.character for a in holding_pen]
     }
 
@@ -138,9 +138,9 @@ async def resolve_scene():
     
     # 1. Build the massive injected prompt
     prompt = "CONTEXT:\n"
-    prompt += "WARLOCK STATS: " + json.dumps(load_json("warlock.json")) + "\n"
-    prompt += "LUCKII STATS: " + json.dumps(load_json("luckii.json")) + "\n"
-    prompt += "SCENE: " + load_file("current_state.md") + "\n\n"
+    prompt += "WARLOCK STATS: " + json.dumps(load_json("state/warlock.json")) + "\n"
+    prompt += "LUCKII STATS: " + json.dumps(load_json("state/luckii.json")) + "\n"
+    prompt += "SCENE: " + load_file("state/current_state.md") + "\n\n"
     
     prompt += "NEW PLAYER ACTIONS TO RESOLVE:\n"
     for action in holding_pen:
