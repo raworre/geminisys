@@ -1,0 +1,91 @@
+{
+  "character_name": "Luckii",
+  "player_name": "",
+  "archetype": "Symbiote Host",
+  "career": "Janitor (Stealth Operative)",
+  "characteristics": {
+    "brawn": 3,
+    "agility": 3,
+    "intellect": 1,
+    "cunning": 4,
+    "willpower": 3,
+    "presence": 2
+  },
+  "derived_attributes": {
+    "soak_value": 3,
+    "wounds": {
+      "threshold": 14,
+      "current": 0
+    },
+    "strain": {
+      "threshold": 13,
+      "current": 0
+    },
+    "defense": {
+      "melee": 0,
+      "ranged": 0
+    }
+  },
+  "critical_injuries": [],
+  "skills": [
+    {
+      "name": "Stealth",
+      "characteristic": "agility",
+      "rank": 2,
+      "career": true,
+      "setting_specific": false,
+      "description": "The ultimate stealth role. Has access to every room in the Mega-Corp, but nobody looks twice at a janitor."
+    },
+    {
+      "name": "Brawl",
+      "characteristic": "brawn",
+      "rank": 1,
+      "career": true,
+      "setting_specific": false,
+      "description": "Fighting unarmed or with improvised weapons (like a floor buffer)."
+    }
+  ],
+  "talents_and_abilities": [
+    {
+      "name": "Symbiotic Telekinetic Tendrils",
+      "type": "ability",
+      "tier": 0,
+      "description": "6 invisible telekinetic tendrils attached to their psyche/aura. Each tendril MUST be doing something/touching something, or Luckii starts losing sanity. They act independently unless Luckii is asleep or tranquilized. The tendrils have names and moods that mutually influence Luckii's brain moods."
+    }
+  ],
+  "weapons": [],
+  "inventory": [
+    {
+      "name": "Floor Buffer (Destroyed)",
+      "quantity": 1,
+      "encumbrance": 4
+    }
+  ],
+  "experience": {
+    "total": 0,
+    "available": 0
+  },
+  "narrative_profile": {
+    "physical_description": "Janitor uniform, surrounded by 6 invisible tendrils.",
+    "backstory": "A janitor at the Mega-Corp who bonded with a telekinetic symbiote.",
+    "motivations": {
+      "strength": {
+        "name": "Unseen",
+        "description": "Nobody looks twice at the janitor, giving Luckii unparalleled access."
+      },
+      "flaw": {
+        "name": "Symbiotic Dependency",
+        "description": "The tendrils must be appeased or Luckii loses their mind."
+      },
+      "desire": {
+        "name": "Stimulation",
+        "description": "The psyche is euphoric and highly stimulated by chaos."
+      },
+      "fear": {
+        "name": "Containment",
+        "description": "Being tranquilized or locked away where the tendrils can't reach anything."
+      }
+    },
+    "bonds_and_rivalries": []
+  }
+}

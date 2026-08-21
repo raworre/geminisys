@@ -29,7 +29,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GameState"
+                  $ref: "#/components/schemas/CampaignSummary"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "500":
@@ -155,6 +155,27 @@ components:
           schema:
             $ref: "#/components/schemas/Problem"
   schemas:
+    CampaignSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "The unique slug for the campaign"
+        _link:
+          type: string
+          description: "Hypermedia link to fetch the full campaign state"
+
+    CharacterSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        _link:
+          type: string
+          description: "Hypermedia link to fetch the full character sheet"
+
     GameState:
       type: object
       properties:
@@ -182,7 +203,7 @@ components:
         characters:
           type: array
           items:
-            $ref: genesys.schema.json
+            $ref: "#/components/schemas/CharacterSummary"
 
     PlayerIntent:
       type: object

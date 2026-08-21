@@ -1,0 +1,91 @@
+{
+  "character_name": "Warlock",
+  "player_name": "",
+  "archetype": "Corpo Wage-Slave",
+  "career": "Technomancer",
+  "characteristics": {
+    "brawn": 1,
+    "agility": 2,
+    "intellect": 4,
+    "cunning": 3,
+    "willpower": 2,
+    "presence": 1
+  },
+  "derived_attributes": {
+    "soak_value": 1,
+    "wounds": {
+      "threshold": 11,
+      "current": 0
+    },
+    "strain": {
+      "threshold": 12,
+      "current": 0
+    },
+    "defense": {
+      "melee": 0,
+      "ranged": 0
+    }
+  },
+  "critical_injuries": [],
+  "skills": [
+    {
+      "name": "Computers",
+      "characteristic": "intellect",
+      "rank": 2,
+      "career": true,
+      "setting_specific": false,
+      "description": "Hacking, programming, and operating complex systems."
+    },
+    {
+      "name": "Skulduggery",
+      "characteristic": "cunning",
+      "rank": 1,
+      "career": true,
+      "setting_specific": false,
+      "description": "Picking locks, bypassing security, and doing sneaky things."
+    }
+  ],
+  "talents_and_abilities": [
+    {
+      "name": "Prompt Injection",
+      "type": "ability",
+      "tier": 0,
+      "description": "Warlock is exceptionally good at finding the specific 'magic words' to make AI systems give up dirt or cause drones to unexpectedly go offline."
+    }
+  ],
+  "weapons": [],
+  "inventory": [
+    {
+      "name": "Corpo ID Badge",
+      "quantity": 1,
+      "encumbrance": 0
+    }
+  ],
+  "experience": {
+    "total": 0,
+    "available": 0
+  },
+  "narrative_profile": {
+    "physical_description": "A boring Corpo Programmer.",
+    "backstory": "In over his head in a meat-grinder Mega-Corp role that he wanted, but is now desperately trying to survive.",
+    "motivations": {
+      "strength": {
+        "name": "Technomancy",
+        "description": "Always good with machines, but excels at figuring out the specific sequences of 'magic words' to control them."
+      },
+      "flaw": {
+        "name": "In Over His Head",
+        "description": "He got the job he wanted, but the reality of the Mega-Corp is far more terrifying than he expected."
+      },
+      "desire": {
+        "name": "Survival",
+        "description": "Just trying to make it through the week without being zeroed by corporate security."
+      },
+      "fear": {
+        "name": "The Brood\u2122",
+        "description": "Terrified of the company's automated security forces."
+      }
+    },
+    "bonds_and_rivalries": []
+  }
+}
