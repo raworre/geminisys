@@ -1,0 +1,148 @@
+openapi: 3.1.0
+info:
+  title: "Geminisys Omni-Director API"
+  summary: "Omni Director API"
+  description: "Core API for interactions with the Genesys Omni Director"
+  contact:
+    name: "Roger A. Worrell"
+    url: "https://worksbyworrell.com"
+    email: "raworre@gmail.com"
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api
+    description: Local Game Server
+paths:
+  /campaigns:
+    get:
+      operationId: listCampaigns
+      summary: List Campaigns
+      description: Get a collection of available game campaigns/states
+      responses:
+        "200":
+          description: Successfully fetched available campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameState"
+
+  /campaigns/{id}:
+    get:
+      operationId: getCampaignById
+      summary: Get Campaign State
+      description: Get the current state of a campaign by its ID. The frontend polls this endpoint to determine what UI to draw.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully fetched campaign state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameState"
+
+  /campaigns/{id}/intents:
+    post:
+      operationId: submitIntent
+      summary: Submit Player Intent
+      description: Submit a text-based action. If all participating players have submitted, the server auto-transitions the state to POOL_ASSIGNMENT.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayerIntent"
+      responses:
+        "200":
+          description: Intent successfully queued
+
+  /campaigns/{id}/rolls:
+    post:
+      operationId: submitRoll
+      summary: Submit Dice Roll
+      description: Submit physical dice results. If all required rolls are submitted, the server auto-transitions the state to RESOLUTION.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayerRoll"
+      responses:
+        "200":
+          description: Roll successfully queued
+
+components:
+  schemas:
+    GameState:
+      type: object
+      properties:
+        scene_status:
+          type: string
+          enum: [INTENT_COLLECTION, POOL_ASSIGNMENT, ROLL_COLLECTION, RESOLUTION]
+          description: "The master state flag that drives the frontend UI mode."
+        narrative_log:
+          type: array
+          items:
+            type: string
+          description: "The ongoing story text."
+        pending_rolls:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              pool:
+                type: array
+                items:
+                  type: string
+              reason:
+                type: string
+          description: "A map of character names to their required dice pools. Used by the UI to trigger the Dice Tray."
+        characters:
+          type: object
+          properties:
+            luckii:
+              $ref: "../state/genesys.schema.json"
+            warlock:
+              $ref: "../state/genesys.schema.json"
+
+    PlayerIntent:
+      type: object
+      required: [character, action_text]
+      properties:
+        character:
+          type: string
+          example: "Warlock"
+        action_text:
+          type: string
+          example: "I vault the table and shoot the bounty hunter."
+
+    PlayerRoll:
+      type: object
+      required: [character, dice_result]
+      properties:
+        character:
+          type: string
+          example: "Warlock"
+        dice_result:
+          type: string
+          example: "2 Success, 1 Threat"
