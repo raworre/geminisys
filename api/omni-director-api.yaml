@@ -2,7 +2,21 @@ openapi: 3.1.0
 info:
   title: "Geminisys Omni-Director API"
   summary: "Omni Director API"
-  description: "Core API for interactions with the Genesys Omni Director"
+  description: |
+    Core API for interactions with the Genesys Omni Director.
+
+    ### Application Error Codes
+    When the API returns a `Problem` object (e.g., 400 or 404), the `type` field will contain a URI identifying the specific error. The frontend can use this to render precise error messages or retry states.
+
+    | `type` URI | HTTP Status | Description |
+    |---|---|---|
+    | `urn:geminisys:error:campaign-not-found` | 404 | The requested campaign ID does not exist. |
+    | `urn:geminisys:error:character-not-found` | 404 | The requested character ID is not in the campaign. |
+    | `urn:geminisys:error:wrong-phase` | 400 | Tried to submit an intent or roll when the scene is not in the correct `scene_status`. |
+    | `urn:geminisys:error:no-pending-pool` | 400 | Tried to submit a roll for a character that the GM did not request a roll for. |
+    | `urn:geminisys:error:duplicate-submission` | 400 | This character has already staged an intent or roll for the current phase. |
+    | `urn:geminisys:error:invalid-roll-syntax` | 400 | The `dice_result` string is malformed or uses unrecognized vocabulary. |
+    | `urn:geminisys:error:llm-failure` | 500 | The backend failed to generate a response from the AI GM. |
   contact:
     name: "Roger A. Worrell"
     url: "https://worksbyworrell.com"
@@ -10,7 +24,7 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-  version: 1.0.0
+  version: 1.1.0
 servers:
   - url: http://localhost:8000/api
     description: Local Game Server
@@ -33,11 +47,7 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
         "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
+          $ref: "#/components/responses/InternalServerError"
 
   /campaigns/{id}:
     get:
@@ -60,7 +70,9 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
-          description: Campaign not found
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
   /campaigns/{id}/characters/{characterId}:
     get:
@@ -88,7 +100,9 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
-          description: Character or Campaign not found
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
   /campaigns/{id}/intents:
     post:
@@ -110,10 +124,18 @@ paths:
       responses:
         "202":
           description: Intent successfully queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResponse"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
   /campaigns/{id}/rolls:
     post:
@@ -135,98 +157,59 @@ paths:
       responses:
         "202":
           description: Roll successfully queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResponse"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
 components:
   responses:
     BadRequest:
       description: Bad Request
       content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
         application/json:
           schema:
             $ref: "#/components/schemas/Problem"
     Unauthorized:
       description: Unauthorized
       content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
         application/json:
           schema:
             $ref: "#/components/schemas/Problem"
+    NotFound:
+      description: Resource Not Found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+
   schemas:
-    CampaignSummary:
-      type: object
-      properties:
-        id:
-          type: string
-          description: "The unique slug for the campaign"
-        _link:
-          type: string
-          description: "Hypermedia link to fetch the full campaign state"
-
-    CharacterSummary:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        _link:
-          type: string
-          description: "Hypermedia link to fetch the full character sheet"
-
-    GameState:
-      type: object
-      properties:
-        scene_status:
-          type: string
-          enum: [INTENT_COLLECTION, POOL_ASSIGNMENT, ROLL_COLLECTION, RESOLUTION]
-          description: "The master state flag that drives the frontend UI mode."
-        narrative_log:
-          type: array
-          items:
-            type: string
-          description: "The ongoing story text."
-        pending_rolls:
-          type: object
-          additionalProperties:
-            type: object
-            properties:
-              pool:
-                type: array
-                items:
-                  type: string
-              reason:
-                type: string
-          description: "A map of character names to their required dice pools. Used by the UI to trigger the Dice Tray."
-        characters:
-          type: array
-          items:
-            $ref: "#/components/schemas/CharacterSummary"
-
-    PlayerIntent:
-      type: object
-      required: [character, action_text]
-      properties:
-        character:
-          type: string
-          example: "Warlock"
-        action_text:
-          type: string
-          example: "I vault the table and shoot the bounty hunter."
-
-    PlayerRoll:
-      type: object
-      required: [character, dice_result]
-      properties:
-        character:
-          type: string
-          example: "Warlock"
-        dice_result:
-          type: string
-          example: "2 Success, 1 Threat"
-
     Problem:
       type: object
       properties:
@@ -242,3 +225,120 @@ components:
         instance:
           type: string
           format: uri
+
+    Links:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+
+    CampaignSummary:
+      type: object
+      required: [id, name, _links]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        _links:
+          $ref: "#/components/schemas/Links"
+
+    CharacterSummary:
+      type: object
+      required: [id, name, _links]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        _links:
+          $ref: "#/components/schemas/Links"
+
+    NarrativeEntry:
+      type: object
+      required: [speaker, text]
+      properties:
+        speaker:
+          type: string
+          enum: [GM, SYSTEM, PLAYER]
+        text:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        mechanics:
+          type: array
+          items:
+            type: string
+
+    GameState:
+      type: object
+      required: [scene_status, narrative_log, characters, staged_intents, staged_rolls]
+      properties:
+        scene_status:
+          type: string
+          enum: [INTENT_COLLECTION, POOL_ASSIGNMENT, ROLL_COLLECTION, RESOLUTION]
+        narrative_log:
+          type: array
+          items:
+            $ref: "#/components/schemas/NarrativeEntry"
+        pending_rolls:
+          type: object
+          additionalProperties:
+            type: object
+            required: [pool]
+            properties:
+              pool:
+                type: array
+                items:
+                  type: string
+              reason:
+                type: string
+        characters:
+          type: array
+          items:
+            $ref: "#/components/schemas/CharacterSummary"
+        staged_intents:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerIntent"
+        staged_rolls:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerRoll"
+
+    PlayerIntent:
+      type: object
+      required: [character_id, action_text]
+      properties:
+        character_id:
+          type: string
+        action_text:
+          type: string
+        mode:
+          type: string
+          enum: [ic, ooc]
+          default: ic
+
+    PlayerRoll:
+      type: object
+      required: [character_id, dice_result]
+      properties:
+        character_id:
+          type: string
+        dice_result:
+          type: string
+
+    ActionResponse:
+      type: object
+      required: [message, scene_status]
+      properties:
+        message:
+          type: string
+        scene_status:
+          type: string
