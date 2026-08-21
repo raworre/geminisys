@@ -14,6 +14,7 @@ info:
 servers:
   - url: http://localhost:8000/api
     description: Local Game Server
+security: []
 paths:
   /campaigns:
     get:
@@ -29,6 +30,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/GameState"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
 
   /campaigns/{id}:
     get:
@@ -48,6 +57,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GameState"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Campaign not found
+
+  /campaigns/{id}/characters/{characterId}:
+    get:
+      operationId: getCharacterById
+      summary: Get Character State
+      description: Get the current stats and details of a specific character within a campaign.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: characterId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully fetched character state
+          content:
+            application/json:
+              schema:
+                $ref: genesys.schema.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Character or Campaign not found
 
   /campaigns/{id}/intents:
     post:
@@ -67,8 +108,12 @@ paths:
             schema:
               $ref: "#/components/schemas/PlayerIntent"
       responses:
-        "200":
+        "202":
           description: Intent successfully queued
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
   /campaigns/{id}/rolls:
     post:
@@ -88,10 +133,27 @@ paths:
             schema:
               $ref: "#/components/schemas/PlayerRoll"
       responses:
-        "200":
+        "202":
           description: Roll successfully queued
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
 components:
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Problem"
   schemas:
     GameState:
       type: object
@@ -118,12 +180,9 @@ components:
                 type: string
           description: "A map of character names to their required dice pools. Used by the UI to trigger the Dice Tray."
         characters:
-          type: object
-          properties:
-            luckii:
-              $ref: "../state/genesys.schema.json"
-            warlock:
-              $ref: "../state/genesys.schema.json"
+          type: array
+          items:
+            $ref: genesys.schema.json
 
     PlayerIntent:
       type: object
@@ -146,3 +205,19 @@ components:
         dice_result:
           type: string
           example: "2 Success, 1 Threat"
+
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        status:
+          type: number
+        title:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
