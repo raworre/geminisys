@@ -1,0 +1,192 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Genesys Character Sheet",
+  "type": "object",
+  "properties": {
+    "character_name": { "type": "string" },
+    "player_name": { "type": "string" },
+    "archetype": { "type": "string" },
+    "career": { "type": "string" },
+    
+    "characteristics": {
+      "type": "object",
+      "properties": {
+        "brawn": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "agility": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "intellect": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "cunning": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "willpower": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "presence": { "type": "integer", "minimum": 1, "maximum": 6 }
+      },
+      "required": ["brawn", "agility", "intellect", "cunning", "willpower", "presence"]
+    },
+    
+    "derived_attributes": {
+      "type": "object",
+      "properties": {
+        "soak_value": { "type": "integer", "minimum": 0 },
+        "wounds": {
+          "type": "object",
+          "properties": {
+            "threshold": { "type": "integer", "minimum": 0 },
+            "current": { "type": "integer", "minimum": 0 }
+          },
+          "required": ["threshold", "current"]
+        },
+        "strain": {
+          "type": "object",
+          "properties": {
+            "threshold": { "type": "integer", "minimum": 0 },
+            "current": { "type": "integer", "minimum": 0 }
+          },
+          "required": ["threshold", "current"]
+        },
+        "defense": {
+          "type": "object",
+          "properties": {
+            "melee": { "type": "integer", "minimum": 0 },
+            "ranged": { "type": "integer", "minimum": 0 }
+          },
+          "required": ["melee", "ranged"]
+        }
+      },
+      "required": ["soak_value", "wounds", "strain", "defense"]
+    },
+    
+    "critical_injuries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "severity_diamonds": { "type": "integer", "minimum": 1, "maximum": 4 },
+          "effect": { "type": "string" },
+          "duration": { "type": "string" }
+        },
+        "required": ["name", "severity_diamonds", "effect", "duration"]
+      }
+    },
+    
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "characteristic": {
+            "type": "string",
+            "enum": ["brawn", "agility", "intellect", "cunning", "willpower", "presence"]
+          },
+          "rank": { "type": "integer", "minimum": 0, "maximum": 5 },
+          "career": { "type": "boolean" },
+          "setting_specific": { "type": "boolean" },
+          "description": { "type": "string" }
+        },
+        "required": ["name", "characteristic", "rank", "career", "setting_specific"]
+      }
+    },
+    
+    "talents_and_abilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["talent", "ability"] },
+          "tier": { "type": "integer", "minimum": 0, "maximum": 5 },
+          "description": { "type": "string" },
+          "reference_page": { "type": "string" }
+        },
+        "required": ["name", "type", "description"]
+      }
+    },
+    
+    "weapons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "skill": { "type": "string" },
+          "damage": { "type": "integer", "minimum": 0 },
+          "critical": { "type": "integer", "minimum": 1 },
+          "range": { "type": "string", "enum": ["Engaged", "Short", "Medium", "Long", "Extreme"] },
+          "special": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "reference_page": { "type": "string" }
+        },
+        "required": ["name", "skill", "damage", "critical", "range"]
+      }
+    },
+    
+    "inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "quantity": { "type": "integer", "minimum": 1 },
+          "encumbrance": { "type": "integer", "minimum": 0 }
+        },
+        "required": ["name", "quantity", "encumbrance"]
+      }
+    },
+    
+    "experience": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "available": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["total", "available"]
+    },
+    
+    "narrative_profile": {
+      "type": "object",
+      "properties": {
+        "physical_description": { "type": "string" },
+        "backstory": { "type": "string" },
+        "motivations": {
+          "type": "object",
+          "properties": {
+            "strength": { "$ref": "#/$defs/motivation_object" },
+            "flaw": { "$ref": "#/$defs/motivation_object" },
+            "desire": { "$ref": "#/$defs/motivation_object" },
+            "fear": { "$ref": "#/$defs/motivation_object" }
+          }
+        },
+        "bonds_and_rivalries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/relationship_object" }
+        }
+      }
+    }
+  },
+  "required": [
+    "character_name",
+    "characteristics",
+    "derived_attributes",
+    "skills"
+  ],
+  "$defs": {
+    "motivation_object": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["name", "description"]
+    },
+    "relationship_object": {
+      "type": "object",
+      "properties": {
+        "entity_name": { "type": "string" },
+        "relationship_type": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["entity_name", "relationship_type", "description"]
+    }
+  }
+}

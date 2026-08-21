@@ -1,0 +1,185 @@
+{
+  "warlock": {
+    "character_name": "Warlock",
+    "player_name": "",
+    "archetype": "Corpo Wage-Slave",
+    "career": "Technomancer",
+    "characteristics": {
+      "brawn": 1,
+      "agility": 2,
+      "intellect": 4,
+      "cunning": 3,
+      "willpower": 2,
+      "presence": 1
+    },
+    "derived_attributes": {
+      "soak_value": 1,
+      "wounds": {
+        "threshold": 11,
+        "current": 0
+      },
+      "strain": {
+        "threshold": 12,
+        "current": 0
+      },
+      "defense": {
+        "melee": 0,
+        "ranged": 0
+      }
+    },
+    "critical_injuries": [],
+    "skills": [
+      {
+        "name": "Computers",
+        "characteristic": "intellect",
+        "rank": 2,
+        "career": true,
+        "setting_specific": false,
+        "description": "Hacking, programming, and operating complex systems."
+      },
+      {
+        "name": "Skulduggery",
+        "characteristic": "cunning",
+        "rank": 1,
+        "career": true,
+        "setting_specific": false,
+        "description": "Picking locks, bypassing security, and doing sneaky things."
+      }
+    ],
+    "talents_and_abilities": [
+      {
+        "name": "Prompt Injection",
+        "type": "ability",
+        "tier": 0,
+        "description": "Warlock is exceptionally good at finding the specific 'magic words' to make AI systems give up dirt or cause drones to unexpectedly go offline."
+      }
+    ],
+    "weapons": [],
+    "inventory": [
+      {
+        "name": "Corpo ID Badge",
+        "quantity": 1,
+        "encumbrance": 0
+      }
+    ],
+    "experience": {
+      "total": 0,
+      "available": 0
+    },
+    "narrative_profile": {
+      "physical_description": "A boring Corpo Programmer.",
+      "backstory": "In over his head in a meat-grinder Mega-Corp role that he wanted, but is now desperately trying to survive.",
+      "motivations": {
+        "strength": {
+          "name": "Technomancy",
+          "description": "Always good with machines, but excels at figuring out the specific sequences of 'magic words' to control them."
+        },
+        "flaw": {
+          "name": "In Over His Head",
+          "description": "He got the job he wanted, but the reality of the Mega-Corp is far more terrifying than he expected."
+        },
+        "desire": {
+          "name": "Survival",
+          "description": "Just trying to make it through the week without being zeroed by corporate security."
+        },
+        "fear": {
+          "name": "The Brood™",
+          "description": "Terrified of the company's automated security forces."
+        }
+      },
+      "bonds_and_rivalries": []
+    }
+  },
+  "luckii": {
+    "character_name": "Luckii",
+    "player_name": "",
+    "archetype": "Symbiote Host",
+    "career": "Janitor (Stealth Operative)",
+    "characteristics": {
+      "brawn": 3,
+      "agility": 3,
+      "intellect": 1,
+      "cunning": 4,
+      "willpower": 3,
+      "presence": 2
+    },
+    "derived_attributes": {
+      "soak_value": 3,
+      "wounds": {
+        "threshold": 14,
+        "current": 0
+      },
+      "strain": {
+        "threshold": 13,
+        "current": 0
+      },
+      "defense": {
+        "melee": 0,
+        "ranged": 0
+      }
+    },
+    "critical_injuries": [],
+    "skills": [
+      {
+        "name": "Stealth",
+        "characteristic": "agility",
+        "rank": 2,
+        "career": true,
+        "setting_specific": false,
+        "description": "The ultimate stealth role. Has access to every room in the Mega-Corp, but nobody looks twice at a janitor."
+      },
+      {
+        "name": "Brawl",
+        "characteristic": "brawn",
+        "rank": 1,
+        "career": true,
+        "setting_specific": false,
+        "description": "Fighting unarmed or with improvised weapons (like a floor buffer)."
+      }
+    ],
+    "talents_and_abilities": [
+      {
+        "name": "Symbiotic Telekinetic Tendrils",
+        "type": "ability",
+        "tier": 0,
+        "description": "6 invisible telekinetic tendrils attached to their psyche/aura. Each tendril MUST be doing something/touching something, or Luckii starts losing sanity. They act independently unless Luckii is asleep or tranquilized. The tendrils have names and moods that mutually influence Luckii's brain moods."
+      }
+    ],
+    "weapons": [],
+    "inventory": [
+      {
+        "name": "Floor Buffer (Destroyed)",
+        "quantity": 1,
+        "encumbrance": 4
+      }
+    ],
+    "experience": {
+      "total": 0,
+      "available": 0
+    },
+    "narrative_profile": {
+      "physical_description": "Janitor uniform, surrounded by 6 invisible tendrils.",
+      "backstory": "A janitor at the Mega-Corp who bonded with a telekinetic symbiote.",
+      "motivations": {
+        "strength": {
+          "name": "Unseen",
+          "description": "Nobody looks twice at the janitor, giving Luckii unparalleled access."
+        },
+        "flaw": {
+          "name": "Symbiotic Dependency",
+          "description": "The tendrils must be appeased or Luckii loses their mind."
+        },
+        "desire": {
+          "name": "Stimulation",
+          "description": "The psyche is euphoric and highly stimulated by chaos."
+        },
+        "fear": {
+          "name": "Containment",
+          "description": "Being tranquilized or locked away where the tendrils can't reach anything."
+        }
+      },
+      "bonds_and_rivalries": []
+    }
+  },
+  "campaign_state": "# CURRENT CAMPAIGN STATE\n\n## LOCATION\nSector 4 - Perimeter Office Block 9 (Floor 4, Warlock's Cubicle Area).\n\n## IMMEDIATE SITUATION (CLIFFHANGER)\nWarlock and Luckii are lying on the floor, covered in white fire-retardant foam and caustic blue cleaning gel. Warlock's cubicle glass is shattered, and his work terminal has been completely vaporized by blaster fire (conveniently erasing all evidence of his unauthorized technomancy). \n\nA Mega-Corp Brood™ Security Drone is hovering above them. It is currently blinded by a thick, toxic cloud of smoke caused by the chemical reaction between the fire foam and Luckii's floor-buffer gel. The drone's repulsor-lifts are slipping on the slick floor, and it is loudly broadcasting a \"SENSOR MALFUNCTION\" error.\n\nEmergency sirens are wailing throughout the empty office block. \n\n## CHARACTER STATUSES\n* **Warlock:** Unharmed. Flawlessly executed a fire-drill macro while diving for cover.\n* **Luckii:** Unharmed. Whiffed a telekinetic grab on the drone, but accidentally caused the chemical explosion. Psyche is euphoric and highly stimulated by the chaos (Tendrils are fully engaged). Buffer tank is destroyed/empty.\n\n## UPCOMING THREAT\nThe drone's optics will eventually clear, and corporate security/enforcers will be responding to the fire alarm and weapons discharge. The crew needs an exfiltration plan.\n"
+}
