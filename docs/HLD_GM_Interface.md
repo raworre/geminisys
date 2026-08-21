@@ -7,20 +7,22 @@
 A sleek, state-aware UI overlay designed to act as a "Forever GM" for a 2-player Genesys campaign. It bridges physical tabletop rolling with LLM narrative generation, prioritizing ease of use, hybrid input (Voice/Text), and automated state management.
 
 ## 2. USER INTERFACE (UX/UI) LAYOUT
-The interface is divided into three primary zones to accommodate two players on a single screen/couch setup.
+The interface is organized into a shared GM stage and separate player-facing consoles. Each player uses an individual device or display connected to the shared VTT session.
 
 ### A. The "Stage" (Center/Top)
 * **Narrative Log:** A scrolling text window displaying the GM's narration and historical actions.
 * **Mechanical Callouts (Luckii's Protocol 2):** The UI parses the GM's output for `[MECHANICS]` blocks. Any mechanical implications (e.g., "Luckii recovers 2 Strain", "Warlock takes 1 Wound") are automatically rendered in a highly visible, distinct color/alert box at the bottom of the narrative post. This ensures players never miss a stat update while reading the flavor text.
 * **Audio Controls:** Toggle TTS (Text-to-Speech) on/off, replay last narration.
 
-### B. The "Player Consoles" (Bottom Left & Right)
-Two distinct, dedicated input zones (One for Warlock, one for Luckii).
-* **Hybrid Input:** 
+### B. The "Player Consoles" (Separate Player Devices)
+Each player has an individual device or display showing one dedicated console for their assigned character. Both player consoles remain available simultaneously, without dividing a single display or requiring the players to share a keyboard.
+* **Character Panel:** Each player sees their character's relevant information and current statistics on their own device.
+* **Hybrid Input:**
   * A standard text box for typing out actions deliberately.
   * A "Hold-to-Talk" button (STT via Whisper) for quick-shot vocal input.
 * **IC / OOC Toggle (Luckii's Protocol):** A UI switch on the input box to flag the payload as In-Character (Action) or Out-of-Character (Question for the GM). This prepends `[OOC]` to the prompt so the GM knows to answer mechanically rather than narratively.
-* **Identity Tagging:** Because the boxes are distinct, the system automatically prepends the character's name to the payload (e.g., `[WARLOCK]: "I dive for the terminal."`), preventing the GM from confusing who is doing what.
+* **Identity Tagging:** Each device is associated with a specific character, so the system automatically prepends that character's name to the payload (e.g., `[WARLOCK]: "I dive for the terminal."`), preventing the GM from confusing who is doing what.
+* **Session Synchronization:** Actions, narration, mechanical callouts, and state updates are synchronized across the shared session while each player retains their own focused view.
 
 ### C. The "Dice Tray" (Visual Input Component)
 Instead of typing "2 Successes, 4 Threats", the UI features a visual row of the 6 core result symbols.
@@ -38,7 +40,7 @@ Instead of typing "2 Successes, 4 Threats", the UI features a visual row of the 
 * **Output (TTS):** ElevenLabs API (or OpenAI TTS) to read the GM's text aloud with dramatic pacing and cinematic voice modulation.
 
 ## 4. MODEL CONFIGURATION (Latency & Cost Optimization)
-Real-time TTRPG sessions require low latency to maintain immersion. 
+Real-time TTRPG sessions require low latency to maintain immersion.
 * **Model Selector UI:** A dropdown in the UI (or a config setting) allowing the user to select the active backend model.
 * **The "Flash" Default:** The system should default to a "Flash" class model for standard gameplay. Flash models are significantly faster and cheaper, making them perfect for resolving standard dice rolls and snappy dialogue.
 * **Hot-Swapping:** Players can hot-swap to a heavier "Pro" model mid-session if they need the GM to resolve an incredibly complex narrative mystery or generate a massive, intricate setting description, then drop back to Flash for combat.
