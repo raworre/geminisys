@@ -322,7 +322,10 @@ components:
           description: Omit on the first message to start a new chat. Include it thereafter.
         campaign_id:
           type: string
-          description: Omit for Phase 1. Required for Phase 2 and Phase 4 so the backend can inject campaign lore/characters into the AI context.
+          description: Omit for Phase 1. Required for Phase 2, 3, and 4 so the backend can inject campaign lore/characters into the AI context.
+        character_id:
+          type: string
+          description: Pass this during Phase 3 (Crunch) so the AI can load the player's draft character sheet and offer mechanical advice.
         message:
           type: string
 
