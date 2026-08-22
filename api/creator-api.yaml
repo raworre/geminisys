@@ -120,10 +120,10 @@ paths:
         "400":
           $ref: "#/components/responses/BadRequest"
 
-  /creator/character/finalize:
+  /creator/character/save:
     post:
-      operationId: characterFinalize
-      summary: Finalize Draft Character
+      operationId: characterSave
+      summary: Save Draft Character
       description: Tells the backend to take the character chat session and generate the draft narrative profile. The UI will then load this JSON draft into memory for the Phase 3 Crunch phase.
       requestBody:
         required: true
@@ -144,10 +144,10 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
-  /creator/character/save:
+  /creator/character/finalize:
     post:
-      operationId: characterSave
-      summary: Save Completed Character Sheet
+      operationId: characterFinalize
+      summary: Finalize Completed Character Sheet
       description: After Phase 3 is complete, the frontend posts the finalized Character JSON here to be written to disk.
       requestBody:
         required: true
@@ -342,6 +342,9 @@ components:
         is_complete:
           type: boolean
           description: True if the AI believes it has enough information to finalize the generation.
+        turn_number:
+          type: integer
+          description: The current turn number in the chat sequence (useful for logging and debugging delays).
 
     FinalizeCampaignRequest:
       type: object
