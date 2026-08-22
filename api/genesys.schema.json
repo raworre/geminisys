@@ -7,7 +7,7 @@
     "player_name": { "type": "string" },
     "archetype": { "type": "string" },
     "career": { "type": "string" },
-    
+
     "characteristics": {
       "type": "object",
       "properties": {
@@ -20,13 +20,14 @@
       },
       "required": ["brawn", "agility", "intellect", "cunning", "willpower", "presence"]
     },
-    
+
     "derived_attributes": {
       "type": "object",
       "properties": {
-        "soak_value": { "type": "integer", "minimum": 0 },
+        "soak_value": { "type": "integer", "minimum": 0, "description": "Armor value." },
         "wounds": {
           "type": "object",
+          "description": "Hits taken directly.",
           "properties": {
             "threshold": { "type": "integer", "minimum": 0 },
             "current": { "type": "integer", "minimum": 0 }
@@ -35,6 +36,7 @@
         },
         "strain": {
           "type": "object",
+          "description": "Mental stress points.",
           "properties": {
             "threshold": { "type": "integer", "minimum": 0 },
             "current": { "type": "integer", "minimum": 0 }
@@ -43,6 +45,7 @@
         },
         "defense": {
           "type": "object",
+          "description": "Defense values.",
           "properties": {
             "melee": { "type": "integer", "minimum": 0 },
             "ranged": { "type": "integer", "minimum": 0 }
@@ -52,7 +55,7 @@
       },
       "required": ["soak_value", "wounds", "strain", "defense"]
     },
-    
+
     "critical_injuries": {
       "type": "array",
       "items": {
@@ -66,7 +69,7 @@
         "required": ["name", "severity_diamonds", "effect", "duration"]
       }
     },
-    
+
     "skills": {
       "type": "array",
       "items": {
@@ -85,7 +88,7 @@
         "required": ["name", "characteristic", "rank", "career", "setting_specific"]
       }
     },
-    
+
     "talents_and_abilities": {
       "type": "array",
       "items": {
@@ -100,7 +103,7 @@
         "required": ["name", "type", "description"]
       }
     },
-    
+
     "weapons": {
       "type": "array",
       "items": {
@@ -120,7 +123,7 @@
         "required": ["name", "skill", "damage", "critical", "range"]
       }
     },
-    
+
     "inventory": {
       "type": "array",
       "items": {
@@ -133,7 +136,7 @@
         "required": ["name", "quantity", "encumbrance"]
       }
     },
-    
+
     "experience": {
       "type": "object",
       "properties": {
@@ -142,7 +145,7 @@
       },
       "required": ["total", "available"]
     },
-    
+
     "narrative_profile": {
       "type": "object",
       "properties": {
