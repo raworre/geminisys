@@ -11,7 +11,11 @@ info:
     | `type` URI | HTTP Status | Description |
     |---|---|---|
     | `urn:geminisys:error:session-not-found` | 404 | The requested `session_id` does not exist or has expired. |
-    | `urn:geminisys:error:campaign-not-found` | 404 | Tried to finalize a character for a campaign that hasn't been generated yet. |
+    | `urn:geminisys:error:campaign-not-found` | 404 | Tried to access a campaign that hasn't been generated yet. |
+    | `urn:geminisys:error:draft-not-found` | 404 | Tried to crunch a character draft that hasn't been initialized. |
+    | `urn:geminisys:error:insufficient-xp` | 400 | The player attempted to buy an upgrade but does not have enough XP. |
+    | `urn:geminisys:error:invalid-upgrade` | 400 | The player attempted an illegal upgrade (e.g. increasing a characteristic past 6, or a skill past 5). |
+    | `urn:geminisys:error:validation` | 400 | The request payload failed schema validation. |
   contact:
     name: "Roger A. Worrell"
     url: "https://worksbyworrell.com"
@@ -25,6 +29,32 @@ servers:
     description: Local Game Server
 security: []
 paths:
+  /rules/skills:
+    get:
+      operationId: getSkills
+      summary: Get Skills Reference Data
+      description: Returns the static list of all Genesys skills.
+      responses:
+        "200":
+          description: A list of skills.
+          content:
+            application/json:
+              schema:
+                type: array
+
+  /rules/talents:
+    get:
+      operationId: getTalents
+      summary: Get Talents Reference Data
+      description: Returns the static list of all Genesys talents.
+      responses:
+        "200":
+          description: A list of talents.
+          content:
+            application/json:
+              schema:
+                type: array
+
   /creator/campaign/chat:
     post:
       operationId: campaignChat
@@ -64,6 +94,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "404":
           $ref: "#/components/responses/NotFound"
 
@@ -107,6 +139,8 @@ paths:
               schema:
                 type: object
                 description: The draft narrative_profile JSON object.
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "404":
           $ref: "#/components/responses/NotFound"
 
@@ -128,6 +162,124 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /creator/character/crunch/start:
+    post:
+      operationId: crunchStart
+      summary: Initialize Character Draft for Crunch
+      description: Takes the narrative profile and initializes a mechanical draft (e.g. 100 XP, all stats at 2) on the backend.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrunchStartRequest"
+      responses:
+        "200":
+          description: Draft initialized and returned.
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /creator/character/crunch/{campaign_id}/{character_id}:
+    get:
+      operationId: crunchGet
+      summary: Get Current Draft State
+      description: Returns the current JSON sheet for the character draft in progress.
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: character_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The current draft sheet.
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /creator/character/crunch/buy:
+    patch:
+      operationId: crunchBuy
+      summary: Purchase an Upgrade
+      description: Attempts to purchase a mechanical upgrade (characteristic, skill, talent). Backend validates XP and prerequisites.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrunchActionRequest"
+      responses:
+        "200":
+          description: Purchase successful, returns updated sheet.
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Illegal purchase (e.g., insufficient XP).
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /creator/character/crunch/refund:
+    patch:
+      operationId: crunchRefund
+      summary: Refund an Upgrade
+      description: Reverses a mechanical upgrade.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrunchActionRequest"
+      responses:
+        "200":
+          description: Refund successful, returns updated sheet.
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Illegal refund.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /creator/character/crunch/finish:
+    post:
+      operationId: crunchFinish
+      summary: Finalize Character Crunch
+      description: Moves the character out of the drafts folder and locks it into the campaign roster.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrunchStartRequest"
+      responses:
+        "200":
+          description: Character locked in.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
 
 components:
   responses:
@@ -222,6 +374,31 @@ components:
         sheet:
           type: object
           description: The complete GenesysCharacterSheet JSON object representing the finished character.
+
+    CrunchStartRequest:
+      type: object
+      required: [campaign_id, character_id]
+      properties:
+        campaign_id:
+          type: string
+        character_id:
+          type: string
+
+    CrunchActionRequest:
+      type: object
+      required: [campaign_id, character_id, type, target]
+      properties:
+        campaign_id:
+          type: string
+        character_id:
+          type: string
+        type:
+          type: string
+          enum: [characteristic, skill, talent]
+          description: The category of the upgrade.
+        target:
+          type: string
+          description: The specific target to upgrade (e.g. 'brawn', 'computers', 'dodge').
 
     SuccessResponse:
       type: object
