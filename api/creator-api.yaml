@@ -92,7 +92,7 @@ paths:
     post:
       operationId: characterFinalize
       summary: Finalize Draft Character
-      description: Tells the backend to take the character chat session and generate the draft `{character_id}.json` containing the narrative profile. The UI will then load this draft for the Crunch phase.
+      description: Tells the backend to take the character chat session and generate the draft narrative profile. The UI will then load this JSON draft into memory for the Phase 3 Crunch phase.
       requestBody:
         required: true
         content:
@@ -101,13 +101,33 @@ paths:
               $ref: "#/components/schemas/FinalizeCharacterRequest"
       responses:
         "200":
-          description: Draft character successfully generated
+          description: Returns the raw JSON of the narrative profile.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: The draft narrative_profile JSON object.
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /creator/character/save:
+    post:
+      operationId: characterSave
+      summary: Save Completed Character Sheet
+      description: After Phase 3 is complete, the frontend posts the finalized Character JSON here to be written to disk.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveCharacterRequest"
+      responses:
+        "200":
+          description: Character successfully saved to disk.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
-        "404":
-          $ref: "#/components/responses/NotFound"
 
 components:
   responses:
@@ -148,6 +168,9 @@ components:
         session_id:
           type: string
           description: Omit on the first message to start a new chat. Include it thereafter.
+        campaign_id:
+          type: string
+          description: Omit for Phase 1. Required for Phase 2 and Phase 4 so the backend can inject campaign lore/characters into the AI context.
         message:
           type: string
 
@@ -187,6 +210,18 @@ components:
         character_id:
           type: string
           description: The unique slug for the character (e.g. 'warlock')
+
+    SaveCharacterRequest:
+      type: object
+      required: [campaign_id, character_id, sheet]
+      properties:
+        campaign_id:
+          type: string
+        character_id:
+          type: string
+        sheet:
+          type: object
+          description: The complete GenesysCharacterSheet JSON object representing the finished character.
 
     SuccessResponse:
       type: object
