@@ -1,0 +1,198 @@
+openapi: 3.1.0
+info:
+  title: "Geminisys Creator API"
+  summary: "Campaign and Character Creator API"
+  description: |
+    API for the AI-Assisted Campaign and Character Creation pipeline.
+    This API allows the frontend to facilitate a Socratic brainstorming session with the AI,
+    and then command the backend to formally generate the underlying markdown and JSON files.
+
+    ### Application Error Codes
+    | `type` URI | HTTP Status | Description |
+    |---|---|---|
+    | `urn:geminisys:error:session-not-found` | 404 | The requested `session_id` does not exist or has expired. |
+    | `urn:geminisys:error:campaign-not-found` | 404 | Tried to finalize a character for a campaign that hasn't been generated yet. |
+  contact:
+    name: "Roger A. Worrell"
+    url: "https://worksbyworrell.com"
+    email: "raworre@gmail.com"
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api
+    description: Local Game Server
+security: []
+paths:
+  /creator/campaign/chat:
+    post:
+      operationId: campaignChat
+      summary: Send Campaign Brainstorm Message
+      description: Sends a user message to the AI world-building assistant. Pass the returned `session_id` in subsequent requests to continue the conversation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: AI response received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /creator/campaign/finalize:
+    post:
+      operationId: campaignFinalize
+      summary: Finalize Campaign Generation
+      description: Tells the backend to take the current chat session and generate the final `campaign_setting.md` and `current_state.md` files.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinalizeCampaignRequest"
+      responses:
+        "200":
+          description: Campaign successfully generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /creator/character/chat:
+    post:
+      operationId: characterChat
+      summary: Send Character Brainstorm Message
+      description: Sends a user message to the AI character creation assistant. Pass the returned `session_id` in subsequent requests.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: AI response received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /creator/character/finalize:
+    post:
+      operationId: characterFinalize
+      summary: Finalize Draft Character
+      description: Tells the backend to take the character chat session and generate the draft `{character_id}.json` containing the narrative profile. The UI will then load this draft for the Crunch phase.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinalizeCharacterRequest"
+      responses:
+        "200":
+          description: Draft character successfully generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    NotFound:
+      description: Resource Not Found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+
+  schemas:
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        status:
+          type: number
+        title:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+
+    ChatRequest:
+      type: object
+      required: [message]
+      properties:
+        session_id:
+          type: string
+          description: Omit on the first message to start a new chat. Include it thereafter.
+        message:
+          type: string
+
+    ChatResponse:
+      type: object
+      required: [session_id, response, is_complete]
+      properties:
+        session_id:
+          type: string
+          description: The active chat session ID.
+        response:
+          type: string
+          description: The text response from the AI assistant.
+        is_complete:
+          type: boolean
+          description: True if the AI believes it has enough information to finalize the generation.
+
+    FinalizeCampaignRequest:
+      type: object
+      required: [session_id, campaign_id]
+      properties:
+        session_id:
+          type: string
+        campaign_id:
+          type: string
+          description: The unique slug for the new campaign (e.g. 'space-bounty')
+
+    FinalizeCharacterRequest:
+      type: object
+      required: [session_id, campaign_id, character_id]
+      properties:
+        session_id:
+          type: string
+        campaign_id:
+          type: string
+          description: The campaign this character belongs to.
+        character_id:
+          type: string
+          description: The unique slug for the character (e.g. 'warlock')
+
+    SuccessResponse:
+      type: object
+      required: [status, message]
+      properties:
+        status:
+          type: string
+        message:
+          type: string
