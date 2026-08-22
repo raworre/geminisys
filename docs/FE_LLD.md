@@ -7,7 +7,7 @@
 
 ## 1. Purpose and Scope
 
-This document turns the presentation-layer requirements in the main LLD section 1.D and the dice-tray requirement currently listed as Phase 4, Task 4.4 into an implementable frontend plan.
+This document turns the presentation-layer requirements in the backend LLD and the current OpenAPI contract into an implementable frontend plan.
 
 The frontend is a **dumb client**. It displays information, collects player input, and sends requests. It does not decide whether an action succeeds, calculate Genesys rules, modify character files, or interpret the GM's state changes. Those decisions belong to the Python backend.
 
@@ -24,7 +24,7 @@ The MVP frontend must support:
 - Automatic character identity tagging.
 - A six-symbol dice tray with increment/decrement counters.
 - Staging an action before resolution.
-- A resolve-scene control for the shared session.
+- A phase-aware session view for intent collection, pool assignment, roll collection, and resolution.
 - TTS controls represented in the UI, with playback integration added after the MVP.
 
 The MVP is designed for desktop and laptop displays. A mobile layout is explicitly out of scope for now.
@@ -32,7 +32,7 @@ The MVP is designed for desktop and laptop displays. A mobile layout is explicit
 The frontend should work in two modes:
 
 1. **Mock mode:** uses local sample data and fake responses so the interface can be designed and tested without a running backend.
-2. **Connected mode:** calls the FastAPI endpoints described in section 7.
+2. **Connected mode:** calls the FastAPI endpoints described in section 7. The OpenAPI document is authoritative when this document and an older example disagree.
 
 ## 2. Design Decisions
 
@@ -74,9 +74,9 @@ The frontend has three display roles. They may use the same codebase, but each w
 2. **Narrative Display:** a read-focused shared stage for a TV or separate monitor. It shows the campaign title, GM narration, mechanics callouts, and recent actions. It does not show private player input controls.
 3. **Player Console:** one reusable console layout for one player. The same layout is rendered in two windows; only the selected campaign/character data and resulting labels and tracker values differ.
 
-The campaign is selected before the character. Once a campaign is selected, the character dropdown is populated only with characters belonging to that campaign. A player cannot select a character from another campaign.
+The campaign is selected before the character. Once a campaign is selected, the character dropdown is populated from that campaign's `GameState.characters` collection. A player cannot select a character from another campaign. The current backend does not expose character claims, availability, or a separate character-list endpoint; those are future extensions.
 
-For the MVP, the display role can be chosen through a setup control or URL parameter, such as `?view=narrative` or `?view=player`. The player view then asks for the campaign and character. The narrative view asks only for the campaign.
+For the MVP, the display role can be chosen through a setup control or an optional client-side URL parameter, such as `?view=narrative` or `?view=player`; this parameter is not part of the API contract. The player view selects a campaign, fetches `GET /api/campaigns/{campaign_id}`, then selects a character and fetches `GET /api/campaigns/{campaign_id}/characters/{character_id}`. The narrative view selects only a campaign. The selected campaign ID is the only campaign value the client should persist; the current API does not provide a campaign display name or description.
 
 Narrative display layout:
 
@@ -91,7 +91,7 @@ Narrative display layout:
 |                     Recent actions                            |
 |                                                               |
 +-------------------------------+-------------------------------+
-| Session status | Staged count | Resolve Scene                  |
+| Scene phase | Pending submissions | Connection                  |
 +---------------------------------------------------------------+
 ```
 
@@ -110,11 +110,11 @@ Player console layout:
 | Dice tray                             |
 | Six result counters | Clear Roll      |
 +---------------------------------------+
-| Staged actions | Resolve Scene        |
+| Pending actions and rolls | Phase status        |
 +---------------------------------------+
 ```
 
-The two player consoles are independent instances of the same UI, showing different selected-character data within the same campaign. The narrative display is also independent, but all three views must refresh when a scene is resolved. Responsive mobile behavior is not required for the MVP; use stable desktop dimensions and test common laptop and TV resolutions instead.
+The two player consoles are independent instances of the same UI, showing different selected-character data within the same campaign. The narrative display is also independent, but all three views must poll the campaign endpoint and react to its `scene_status`; there is no resolve endpoint or real-time subscription in the current contract. Responsive mobile behavior is not required for the MVP; use stable desktop dimensions and test common laptop and TV resolutions instead.
 
 #### Narrative display waiting state
 
@@ -187,14 +187,14 @@ Displays:
 - `GEMINISYS` and current campaign name.
 - Active character selector on player consoles only.
 - Backend status: Connecting, Connected, Mock Mode, or Error.
-- Model label: Flash or Pro. The control may be display-only until model selection exists in the backend.
+- Model label: show `Flash`/`Pro` only when the backend exposes model metadata; otherwise show an unavailable state.
 - TTS toggle and replay-last-narration button.
 
 The header is informational and should not compete visually with the narrative.
 
 #### Header menu
 
-The header should include a small menu for secondary actions. Keep immediate gameplay actions such as `Stage Action` and `Resolve Scene` visible on the page rather than hiding them in this menu.
+The header should include a small menu for secondary actions. Keep immediate gameplay actions such as `Stage Action` and the phase-appropriate submission control visible on the page rather than hiding them in this menu.
 
 MVP menu options:
 
@@ -203,28 +203,27 @@ MVP menu options:
 - **Connection Status:** show the current connection state and provide `Retry` when the backend is unavailable.
 - **Reset View:** restore this window's view and local UI preferences without changing campaign or character data.
 
-Future option:
+Future options:
 
 - **Change Character:** keep this available as a later option for player consoles if the use case grows to require switching characters during a session. It is not required for the current MVP workflow.
+- **Claim/release character:** add only when the backend exposes the claim contract described in the backend LLD.
 
 The menu should be available on all display roles, but it should show only options that make sense for the current window. For example, a narrative display should not show player-character actions.
 
 ### 3.3 Campaign selector
 
-The campaign selector is the first workflow step. It should show available campaigns as a simple list or dropdown with the campaign name and a brief description when available.
+The campaign selector is the first workflow step. It should show available campaigns as a simple list or dropdown. The current `CampaignSummary` contains only `id` and the hypermedia `_link`, so the UI should use the ID as the fallback label and must not require a name or description. The client may follow the supplied link when loading the campaign resource.
 
 Behavior:
 
 - No character dropdown is shown until a campaign is selected.
-- Selecting a campaign stores its stable campaign ID, not only its display name.
-- The player view then requests or receives the characters for that campaign, including each character's availability.
-- While a player is choosing, refresh the character list periodically at a modest interval, such as every 5 seconds, or when the dropdown receives focus. This is lightweight enough for the selection screen and avoids requiring real-time infrastructure for the MVP.
-- When a player selects a character, send a backend claim request before entering the console. The backend must atomically reserve that character for the current player-console/session so two players cannot claim the same character at the same time.
-- A character already claimed by the other player is disabled in the dropdown and labeled `Unavailable` or `In use`.
-- If a claim fails because the other player selected it first, refresh the list and ask the player to choose another available character without losing the rest of their setup.
-- Claims should have a short session lease or heartbeat so a disconnected or closed player console does not leave a character unavailable forever. An explicit release from `Change Campaign` should still happen when possible.
+- Selecting a campaign stores its stable campaign ID, not only a display label.
+- The player view requests `GET /api/campaigns/{campaign_id}` and populates the character selector from `GameState.characters`.
+- Character summaries currently contain `id`, `name`, and the hypermedia `_link`; they do not contain an availability flag. The client may follow the supplied link to load the full character resource.
+- Refresh the campaign state on a modest polling interval, such as every 5 seconds, and after submitting an intent or roll.
+- Character selection is currently a local window choice. Do not send a claim request because no claim endpoint exists in the current API.
 - The narrative view enters the shared stage after campaign selection.
-- A `Change Campaign` control returns to this screen, releases the current character claim, and clears the selected character for that window. It must not delete or reset campaign data.
+- A `Change Campaign` control returns to this screen and clears the selected character for that window. It must not delete or reset campaign data.
 
 ### 3.4 Narrative stage
 
@@ -233,17 +232,20 @@ Responsibilities:
 - Render a chronological list of entries.
 - Distinguish player actions from GM narration.
 - Keep the newest entry visible after a successful resolution.
-- Render mechanics as a separate, high-contrast callout under the relevant narration.
+- Render mechanics as a separate, high-contrast callout under the relevant narration when the backend provides mechanics data.
 - Render the title/waiting state when there is no active scene to display.
+- Render the backend's `scene_status` and pending dice pools so players know which submission is expected.
 
-An entry should have:
+The current API returns `narrative_log` as an array of strings rather than structured entries. Until the backend adds speaker, timestamp, and mechanics fields, render each string as a narrative entry without inferring its speaker. A mechanics callout remains a future backend response capability.
+
+An entry may eventually have:
 
 - Speaker label: `GM`, `WARLOCK`, or `LUCKII`.
 - Optional timestamp.
 - Main text.
 - Optional mechanics list.
 
-Do not show raw `[STATE_UPDATE: ...]` data in the UI. The backend interceptor owns that operation and returns clean presentation data.
+Do not show raw `[STATE_UPDATE: ...]` data in the UI. The backend interceptor owns that operation. The current backend does not yet return a separate mechanics collection, so the frontend must not parse mechanics or state-update blocks itself.
 
 ### 3.5 Character console
 
@@ -251,11 +253,11 @@ This is a reusable player-console component, not a separate Warlock screen and L
 
 Displays the selected character's:
 
-- Name and player identity.
+- `character_name`, `player_name`, archetype, and career when present.
 - Wounds as `current / threshold`.
 - Strain as `current / threshold`.
 - Soak value and defense as small secondary statistics.
-- Optional compact inventory summary.
+- Optional compact inventory summary from the character sheet.
 
 The character dropdown belongs here, above the character name. It is populated from the selected campaign and is independent in each player-console window. The two players may therefore choose different characters while remaining in the same campaign.
 
@@ -264,7 +266,7 @@ Tracker behavior:
 - Wounds fill from green through amber to coral as current value approaches threshold.
 - Strain uses cyan.
 - The numeric value is always visible above or inside the bar.
-- Values must not be editable in the player console. They are refreshed from `/api/state` after resolution.
+- Values must not be editable in the player console. They are refreshed from `GET /api/campaigns/{campaign_id}` and, when needed, `GET /api/campaigns/{campaign_id}/characters/{character_id}` after the backend advances the scene.
 
 ### 3.6 Action composer
 
@@ -280,7 +282,7 @@ Behavior:
 
 - Empty text cannot be staged.
 - The selected identity is added by the frontend request's `character` field; it is not typed manually by the player.
-- OOC mode prepends `[OOC]` to the submitted action text, or sends an explicit `mode: "ooc"` once the backend supports it.
+- OOC mode is a frontend presentation choice for now. Since `PlayerIntent` has no mode field, the client may prepend `[OOC]` to `action_text` but must treat that convention as temporary.
 - On success, clear the composer and show the action in the staged-actions list.
 - On failure, retain the text and show a recoverable error.
 
@@ -301,7 +303,7 @@ Required counters:
 
 Each control has a minus button, a visible count, and a plus button. Counts cannot go below zero. The tray also shows a plain-text summary, for example `3 Success, 1 Threat`, and a `Clear Roll` control.
 
-When the player stages an action, the serialized result is:
+When the player submits a roll, the serialized result is:
 
 ```text
 [LUCKII ROLLS: 3 Success, 1 Threat]
@@ -319,9 +321,14 @@ Show:
 - Character name for each staged action.
 - A short action preview.
 - Dice summary when present.
-- A `Resolve Scene` button.
+- Current phase and submission status.
 
-`Resolve Scene` is a shared action. It should be disabled while a request is in progress and while there are no staged actions. The UI should ask for confirmation only if the team decides accidental resolution is a real risk during playtesting; avoid a modal by default for speed.
+There is no `Resolve Scene` endpoint in the current API. The backend advances the four-phase loop when the required intents and rolls have been received. The UI should therefore show the current phase and disable controls that do not apply to that phase:
+
+- `INTENT_COLLECTION`: show the action composer and submit `POST /api/campaigns/{campaign_id}/intents`.
+- `POOL_ASSIGNMENT`: show a waiting state while the backend prepares pools.
+- `ROLL_COLLECTION`: show `pending_rolls` and the dice tray; submit `POST /api/campaigns/{campaign_id}/rolls`.
+- `RESOLUTION`: show a resolving state and poll until the backend returns to `INTENT_COLLECTION`.
 
 ## 4. Client State Model
 
@@ -334,12 +341,13 @@ The browser maintains presentation state only:
   displayRole: "campaign-selector" | "narrative" | "player",
   campaigns: [],
   selectedCampaignId: null,
-  availableCharacters: [],
+  campaignCharacters: [],
   activeCharacterId: null,
   playerConsoleId: null,
-  characterClaimStatus: "unclaimed" | "claiming" | "claimed" | "unavailable",
   characters: {},
-  campaignState: "",
+  sceneStatus: "INTENT_COLLECTION",
+  narrativeLog: [],
+  pendingRolls: {},
   stagedActions: [],
   narrativeEntries: [],
   draftAction: "",
@@ -359,7 +367,7 @@ The browser maintains presentation state only:
 }
 ```
 
-The backend remains the source of truth for character data and campaign state. After `resolve`, the frontend must fetch `/api/state` again rather than trying to predict the new wound or strain values.
+The backend remains the source of truth for character data and campaign state. After an intent or roll submission, the frontend must fetch `GET /api/campaigns/{campaign_id}` again rather than trying to predict phase changes, pending pools, or character values.
 
 Each browser window stores its display role, selected campaign ID, and, for a player console, selected character ID. These selections are window-specific UI state. The campaign itself and the character files remain backend state.
 
@@ -368,14 +376,13 @@ Each browser window stores its display role, selected campaign ID, and, for a pl
 ### 5.1 Boot and campaign selection
 
 1. Render the app shell immediately with a loading status.
-2. Request the available campaigns.
+2. Request `GET /api/campaigns`; the response is an array of `CampaignSummary` objects.
 3. Show the campaign selector unless a valid campaign ID was supplied for a previously configured window.
-4. After campaign selection, request the selected campaign's characters.
+4. After campaign selection, request `GET /api/campaigns/{campaign_id}` and use its `characters` array.
 5. Narrative view enters the narrative display; player view shows the character dropdown.
-6. While the player is choosing, refresh the character list periodically or on dropdown focus.
-7. After character selection, claim the character through the backend before requesting state and populating that player's console.
-8. If a claim fails, refresh the list and keep the player on character selection.
-9. If a request fails, switch to Mock Mode or show a clear retry control, depending on the selected development mode.
+6. Refresh campaign state periodically or after a submission.
+7. After character selection, request `GET /api/campaigns/{campaign_id}/characters/{character_id}` and populate that player's console.
+8. If a request fails, preserve the selection and show a clear retry control.
 
 ### 5.2 Stage a text action
 
@@ -384,18 +391,18 @@ Each browser window stores its display role, selected campaign ID, and, for a pl
 3. Player selects IC or OOC.
 4. Player types an action.
 5. Player optionally creates a dice result.
-6. Frontend formats the roll and sends `POST /api/intent` with the campaign and character IDs when supported.
-7. Frontend adds a pending/staged entry and updates the staged count.
+6. Send `POST /api/campaigns/{campaign_id}/intents` with `character` and `action_text`.
+7. On the `202` response, refresh campaign state and show the submitted action as local pending UI until the backend exposes structured action entries.
 
-### 5.3 Resolve the scene
+### 5.3 Submit a roll and follow resolution
 
-1. Player presses `Resolve Scene`.
-2. Disable the button and show `Resolving...`.
-3. Send `POST /api/resolve`.
-4. Add the returned narrative to the narrative stage.
-5. Add mechanics separately when the backend returns them.
-6. Request `/api/state` again to refresh trackers.
-7. Re-enable controls and store the latest narration for replay.
+1. Wait for `scene_status` to become `ROLL_COLLECTION`.
+2. Show each character's `pending_rolls` pool and reason.
+3. Player enters the physical result in the dice tray.
+4. Send `POST /api/campaigns/{campaign_id}/rolls` with `character` and `dice_result`.
+5. Refresh campaign state after the `202` response.
+6. During `RESOLUTION`, show a resolving state and continue polling.
+7. When the backend returns to `INTENT_COLLECTION`, render the updated `narrative_log` and refresh character sheets.
 
 ### 5.4 Hold-to-talk, later
 
@@ -411,131 +418,93 @@ These are part of the design, not polish to add at the end.
 
 - Loading: skeleton blocks or concise `Loading session...` labels.
 - No narrative: show the narrative display title state with `Awaiting first scene` rather than an empty panel.
-- No staged actions: `Stage one or more actions to resolve the scene.`
+- No pending submission: show the action required by the current `scene_status`.
 - Backend unavailable: show the problem, preserve the draft, and offer `Retry`.
-- Resolve failure: keep staged actions visible so the player does not lose work.
+- Intent or roll failure: retain the draft or dice counts and show a recoverable error.
 - Invalid state data: show the character name and `Character data unavailable`; do not render broken bars.
 - Long narration: keep the stage scrollable and preserve paragraph breaks.
 
 ## 7. Backend Contract
 
-The current server provides `/api/state`, `/api/intent`, and `/api/resolve`. Campaign selection requires the two additional endpoints described first below.
+The OpenAPI document at `api/omni-director-api.yaml` is the source of truth. The current backend is campaign-scoped and exposes four operations used by the frontend. Campaign and character summaries include hypermedia `_link` fields; the frontend may use those links instead of reconstructing resource URLs, while treating the documented path parameters as the canonical route shape. Its state-machine and Gemini behavior are still scaffolding: `GET` currently reports `INTENT_COLLECTION`, while intent and roll handlers acknowledge requests without advancing state or returning narrative results. The frontend should implement the contract and show the resulting waiting states without inventing those transitions locally.
 
 ### `GET /api/campaigns`
 
-This endpoint is needed for the campaign-first startup flow. Recommended response:
+Returns an array of `CampaignSummary` objects. Each object currently contains:
 
 ```json
 {
-  "campaigns": [
+  "id": "cyberpunk-heist",
+  "_link": "http://localhost:8000/api/campaigns/cyberpunk-heist"
+}
+```
+
+The campaign directory is the current persistence boundary. The UI should use `id` as the label until campaign metadata is added.
+
+### `GET /api/campaigns/{campaign_id}`
+
+Returns the current `GameState`:
+
+```json
+{
+  "scene_status": "INTENT_COLLECTION",
+  "narrative_log": ["..."],
+  "pending_rolls": {},
+  "characters": [
     {
-      "id": "campaign-001",
-      "name": "The Example Campaign",
-      "description": "Optional short description"
+      "id": "warlock",
+      "name": "Warlock",
+      "_link": "http://localhost:8000/api/campaigns/cyberpunk-heist/characters/warlock"
     }
   ]
 }
 ```
 
-### `GET /api/campaigns/{campaign_id}/characters`
+The frontend should poll this endpoint for synchronization. `scene_status` is an enum with `INTENT_COLLECTION`, `POOL_ASSIGNMENT`, `ROLL_COLLECTION`, and `RESOLUTION`. `pending_rolls` maps character IDs or names to a pool and reason.
 
-This endpoint is needed to populate the character dropdown after campaign selection. Recommended response:
+### `GET /api/campaigns/{campaign_id}/characters/{character_id}`
 
-```json
-{
-  "campaign_id": "campaign-001",
-  "characters": [
-    { "id": "luckii", "name": "Luckii", "available": true },
-    { "id": "warlock", "name": "Warlock", "available": false }
-  ]
-}
-```
+Returns a full `GenesysCharacterSheet` validated against `api/genesys.schema.json`. The UI should read wounds and strain from `derived_attributes.wounds` and `derived_attributes.strain`, and should not assume that optional fields such as inventory, weapons, talents, or narrative profile are present.
 
-### `POST /api/campaigns/{campaign_id}/claims`
-
-Recommended request and response for reserving a character:
-
-```json
-{
-  "player_console_id": "player-console-1",
-  "character_id": "luckii"
-}
-```
-
-```json
-{
-  "status": "claimed",
-  "campaign_id": "campaign-001",
-  "character_id": "luckii"
-}
-```
-
-If the character is already claimed, return a conflict response such as HTTP `409` with `status: "unavailable"`. The frontend then refreshes the character list rather than assuming the claim succeeded.
-
-### `DELETE /api/campaigns/{campaign_id}/claims/{character_id}`
-
-Release the current player's claim when they choose `Change Campaign`, close the player-console session, or otherwise leave character setup. The backend should verify the `player_console_id` before releasing a claim.
-
-### `GET /api/state`
-
-The current server returns global state and does not yet accept a campaign ID. Recommended future shape:
-
-```json
-{
-  "campaign_id": "campaign-001",
-  "warlock": { "...": "character data" },
-  "luckii": { "...": "character data" },
-  "campaign_state": "markdown text",
-  "holding_pen": ["warlock", "luckii"]
-}
-```
-
-### `POST /api/intent`
+### `POST /api/campaigns/{campaign_id}/intents`
 
 Request:
 
 ```json
 {
-  "campaign_id": "campaign-001",
-  "character": "luckii",
-  "action_text": "I search the terminal.",
-  "dice_result": "[LUCKII ROLLS: 3 Success, 1 Threat]"
+  "character": "Warlock",
+  "action_text": "I vault the table and shoot the bounty hunter."
 }
 ```
 
-Current success response:
+The response is HTTP `202` with a `MessageResponse`:
 
 ```json
-{ "status": "staged", "message": "Luckii added to queue." }
+{ "message": "Intent successfully queued" }
 ```
 
-The existing server does not yet define campaign IDs. Until campaign storage is implemented, the mock mode can use the existing `warlock.json` and `luckii.json` files as the first campaign. Hrothgar should decide whether campaigns become folders, a registry file, or database records before connected campaign selection is implemented.
+The current `PlayerIntent` schema has no dice-result or input-mode field. Dice are submitted separately during roll collection, and any OOC prefix is a temporary frontend convention.
 
-### `POST /api/resolve`
+### `POST /api/campaigns/{campaign_id}/rolls`
 
-Current success response:
+Request:
 
 ```json
 {
-  "status": "resolved",
-  "narrative": "The GM response with state-update data removed."
+  "character": "Warlock",
+  "dice_result": "2 Success, 1 Threat"
 }
 ```
 
-### Recommended small contract extension
-
-The HLD requires `[MECHANICS]` callouts, but the current resolve response only returns `narrative`. The backend should eventually return:
+The response is HTTP `202` with:
 
 ```json
-{
-  "status": "resolved",
-  "narrative": "The clean GM narration.",
-  "mechanics": ["Luckii recovers 2 Strain", "Warlock takes 1 Wound"],
-  "state_updated": true
-}
+{ "message": "Roll successfully queued" }
 ```
 
-Until that exists, the frontend may display the entire clean response as narration, but it must not attempt to parse or apply state updates itself.
+There is currently no legacy `/api/state`, `/api/intent`, or `/api/resolve` endpoint, nor a separate character-list, claim, or release endpoint. The frontend must not depend on those routes. A shared `Resolve Scene` button is not part of the current workflow; the backend state machine is intended to advance after the required submissions are received.
+
+Future contract extensions may add structured narrative entries, mechanics callouts, claim leases, campaign metadata, OOC mode, and an explicit resolution response. Those additions should be reflected here only after they are added to the OpenAPI contract.
 
 ## 8. Implementation Plan
 
@@ -574,24 +543,24 @@ Deliverable: a tray that can be tested independently of the GM.
 ### Phase D: Mock-mode application behavior
 
 1. Add mock campaign data and assign the existing character files to the first campaign.
-2. Implement `loadCampaigns`, `loadCharacters`, `loadState`, `stageIntent`, and `resolveScene` functions with the same return shapes as the real API.
-3. Use a short fake delay for campaign loading, character loading, and resolving so loading states can be designed.
-4. Test campaign selection before character selection, empty input, zero dice, multiple dice types, and repeated staging.
+2. Implement `loadCampaigns`, `loadCampaignState`, `loadCharacter`, `submitIntent`, and `submitRoll` functions with the same return shapes as the real API.
+3. Use a short fake delay for campaign loading, character loading, and phase transitions so loading states can be designed.
+4. Test campaign selection before character selection, empty input, zero dice, multiple dice types, repeated intent submission, and roll submission.
 
 Deliverable: a complete rehearsal of the player workflow without a server.
 
 ### Phase E: Connected API behavior
 
 1. Replace mock functions with `fetch` calls behind the same function names.
-2. Add campaign ID, character ID, player-console ID, and claim/release requests where the backend supports them.
-2. Keep the character object and all state update logic in the response-rendering layer.
-3. Refresh state after every successful resolution.
-4. Handle network errors without clearing the draft or staged actions.
-6. Test two player consoles claiming different characters, refreshing availability, handling a `409` conflict, releasing a claim, and reclaiming it.
+2. Keep campaign and character IDs in the client and use each resource's hypermedia `_link` when following campaign or character resources; do not assume display metadata beyond the fields in the summaries.
+3. Keep the character object and all state update logic in the response-rendering layer.
+4. Poll campaign state after every successful intent or roll and while the backend is in `POOL_ASSIGNMENT` or `RESOLUTION`.
+5. Handle network errors without clearing the draft or dice counts.
+6. Test two player consoles selecting different characters, submitting intents, observing pending pools, and submitting rolls.
 7. Test three browser windows together: one narrative display and two player consoles.
 8. Test using the running FastAPI server.
 
-Deliverable: text actions and dice rolls can travel from the browser to the Python holding pen and back as narration.
+Deliverable: text actions and dice rolls can travel from the browser to the campaign-scoped FastAPI endpoints, with phase and state updates displayed when the backend implementation is complete.
 
 ### Phase F: Audio and polish
 
@@ -635,9 +604,9 @@ The frontend MVP is complete when:
 - Empty actions cannot be staged.
 - The six dice counters increment, decrement, clear, and serialize correctly.
 - A staged action displays its character and roll summary.
-- Resolve shows a loading state and then adds narration.
-- Connected mode calls the three current API endpoints successfully.
-- State is refreshed after resolution rather than guessed by the browser.
+- Each `scene_status` renders the correct controls and waiting state.
+- Connected mode calls the current campaign, character, intent, and roll endpoints successfully.
+- State is refreshed after intent and roll submissions rather than guessed by the browser.
 - Backend errors preserve user-entered text and explain how to retry.
 - The interface is usable with keyboard controls at common laptop and TV resolutions.
 - Raw state-update JSON is never displayed to players.
@@ -660,6 +629,6 @@ Hrothgar owns or supports:
 - Mechanics parsing and state persistence.
 - Audio endpoints and deployment details.
 
-Before connected campaign selection is built, Hrothgar should confirm the campaign data model and the IDs used for campaigns and characters.
+Before connected campaign selection is built, Hrothgar should confirm the campaign display metadata and whether character claims are needed. The current implementation uses campaign folders and the character file stems (`warlock` and `luckii`) as IDs.
 
 Review together at the end of each phase. Keep the interface understandable before making it ornate. The most valuable early question is: can a player glance at the screen, understand the current state, stage an action, and tell what is waiting to be resolved?
