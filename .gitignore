@@ -2,3 +2,7 @@
 .env
 __pycache__/
 *.pyc
+
+# Ignore generated campaigns and history, but keep the README
+campaigns/*
+!campaigns/README.md
