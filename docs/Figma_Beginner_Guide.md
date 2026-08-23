@@ -14,7 +14,11 @@ For this project, Figma owns visual intent: layout, typography, color, component
 
 The first catalogue is for the Creator UI, which covers the entire Creation phase. Do not add Play-phase screens until that work is intentionally started.
 
-## 2. Create the File
+## 2. Vocabulary and Concepts
+
+The detailed beginner glossary is maintained separately in [Luckiis_Beginner_Glossary.md](Luckiis_Beginner_Glossary.md). It defines the Figma, frontend, API, layout, accessibility, and handoff terms used in this guide. Return to it whenever a term is unfamiliar.
+
+## 3. Create the File
 
 1. Go to Figma.com and create or sign in to a free account.
 2. If onboarding asks you to create a team, staying in the personal workspace is fine for this private draft. The exact onboarding choices may vary.
@@ -24,7 +28,7 @@ The first catalogue is for the Creator UI, which covers the entire Creation phas
 
 Before depending on plugins, libraries, or automated exports, verify the current free-plan limits, sharing permissions, and export options. `VTT_Master_UI_Catalogue` can be used later if the Play phase joins this catalogue.
 
-## 3. Understand the Workspace
+## 4. Understand the Workspace
 
 Figma has three areas you will use constantly:
 
@@ -34,7 +38,7 @@ Figma has three areas you will use constantly:
 
 If a control appears in a different location, search Figma's menus or use the right-panel search. Do not redesign the document because a label moved.
 
-## 4. Create and Name the Catalogue Pages
+## 5. Create and Name the Catalogue Pages
 
 Rename the initial page and add the remaining pages in this order:
 
@@ -55,7 +59,7 @@ Use clear names for layers and components from the beginning. For example:
 
 Names become important when finding components and translating the design into HTML and CSS.
 
-## 5. Establish Provisional Foundations
+## 6. Establish Provisional Foundations
 
 Before building screens, use `01 Foundations` to create a small, clearly labeled set of provisional styles or variables for:
 
@@ -69,7 +73,7 @@ Before building screens, use `01 Foundations` to create a small, clearly labeled
 
 The placeholder palette may use `#1E1E2E` for a dark shell and amber for attention. These are starting values, not permanent brand decisions. Prefer Figma Variables or Styles where available, and give them semantic names such as `color/background/shell` and `color/state/attention`. The eventual frontend should mirror those semantic roles with CSS custom properties.
 
-## 6. Essential Shortcuts
+## 7. Essential Shortcuts
 
 Use these shortcuts while building standard interface elements:
 
@@ -82,7 +86,7 @@ Use these shortcuts while building standard interface elements:
 
 Shortcuts can be changed by the operating system, browser, or Figma settings. If one does not work, use the corresponding toolbar or menu command and continue.
 
-## 7. Create the First Main Component
+## 8. Create the First Main Component
 
 Use the `02 Components` page for this exercise:
 
@@ -98,7 +102,7 @@ Use the `02 Components` page for this exercise:
 
 Figma's current term is **main component**. An **instance** is a linked copy used in a screen. Keep the label generic enough to support actions such as **Save Draft**, **Retry**, and **Finalize Campaign**.
 
-## 8. Add Component States
+## 9. Add Component States
 
 Do not make a separate unrelated button for every state. Create variants or component properties for the states the Creator needs:
 
@@ -111,7 +115,7 @@ Do not make a separate unrelated button for every state. Create variants or comp
 
 Name variants with properties such as `State=Default` and `State=Disabled`. Use text and icon changes as well as color so state is not communicated by color alone. Keep loading and disabled states visibly distinct and make sure the label still fits.
 
-## 9. Place a Linked Instance on Screen Frames
+## 10. Place a Linked Instance on Screen Frames
 
 1. Open `03 Creator Screens`.
 2. Create at least two desktop frames: `1440 x 900` for a laptop and `1920 x 1080` for a larger display. Add more target sizes only when the project decides they are required.
@@ -122,7 +126,7 @@ Name variants with properties such as `State=Default` and `State=Disabled`. Use 
 
 Do not detach an instance merely to make a one-off visual change. Prefer a variant, component property, or intentional instance override so the relationship remains useful.
 
-## 10. Make a Small Prototype and Checkpoint
+## 11. Make a Small Prototype and Checkpoint
 
 Connect the button to a second frame in Prototype mode and use Present to click through it. This is only a visual flow check; it does not replace frontend routing or API behavior.
 
@@ -135,7 +139,7 @@ Before creating the full component library, confirm:
 - The button is usable at both laptop and large-display frame sizes.
 - The design uses provisional token names rather than scattered hard-coded decisions.
 
-## 11. Auto Layout Rules of Thumb
+## 12. Auto Layout Rules of Thumb
 
 Use Auto Layout for ordinary interface structures such as buttons, form rows, chat messages, lists, and stacked panels. Use nested Auto Layout frames when a component has more than one direction of layout.
 
@@ -148,7 +152,80 @@ Learn these sizing choices:
 
 Do not force Auto Layout onto future maps, canvas overlays, fog of war, or other spatial controls. Those surfaces need different layout and rendering techniques.
 
-## 12. Handoff Basics
+## 13. Backup and Restore
+
+### What the backup is for
+
+The Figma backup is for recovering design work and preserving important milestones. It is not a runtime data source for Geminisys.
+
+Use these sources in this order:
+
+1. **Figma cloud file:** the active working design source.
+2. **Figma Version History:** recovery of earlier saved versions within Figma.
+3. **Local `.fig` snapshots:** offline or disaster-recovery copies.
+4. **Exported assets:** only the images, icons, or other files the frontend actually needs.
+
+Do not treat screenshots, exported assets, or a local `.fig` file as a replacement for the live Figma file. They do not preserve all of the same editing relationships, component links, variables, or prototype connections.
+
+### Recommended backup location
+
+Keep local snapshots outside the application runtime folders. A practical repository-adjacent location is:
+
+```text
+geminisys-design-backups/
+	figma/
+		Geminisys_Creator_UI_Catalogue_2026-08-23.fig
+		README.md
+```
+
+Do not place backups in `campaigns/`, `backend/`, or any folder the server scans for campaign state or generated files. If a backup is stored inside the repository, confirm that it is intentionally tracked and understand that `.fig` files may be large binary files. Never commit credentials, tokens, private links, or exported user data with a design backup.
+
+### Manual backup routine
+
+Make a snapshot at these points:
+
+- After the catalogue pages and foundations are established.
+- After a major component-library milestone.
+- Before a substantial visual redesign.
+- Before sharing a handoff for frontend implementation.
+- At the end of a productive design session when the work would be painful to recreate.
+
+For each snapshot:
+
+1. Confirm the Figma cloud file has finished saving.
+2. Add a named version in Figma Version History, such as `Creation shell and token pass`.
+3. Use Figma's file menu to save or download a local copy, such as **Save local copy** or the current equivalent.
+4. Store the `.fig` file using this filename pattern:
+
+	 ```text
+	 Geminisys_Creator_UI_Catalogue_YYYY-MM-DD_short-description.fig
+	 ```
+
+5. Record the snapshot date, Figma file URL or identifier, major changes, and any known limitations in the backup README or the project decision log.
+6. Open the local file once, if practical, to confirm that it is readable and is the intended snapshot.
+
+Figma's menu wording and local-copy availability can vary by plan and product version. If a local `.fig` export is unavailable, rely on Figma Version History and duplicate the file in Figma as a named milestone. Do not substitute a screenshot unless you only need a visual reference.
+
+### Restore procedure
+
+If the live file is damaged or important work is lost:
+
+1. Check Figma Version History first and restore or duplicate the correct named version.
+2. If necessary, open the newest suitable local `.fig` snapshot in Figma.
+3. Rename the restored file with a clear `restored-YYYY-MM-DD` suffix until it has been reviewed.
+4. Check the catalogue pages, Variables or Styles, main components, variants, instances, prototype links, and handoff notes.
+5. Make the restored file the active working file only after the review is complete.
+6. Create a new backup snapshot after restoration.
+
+### Backend and frontend boundary
+
+The backend should **not pull from the Figma backup folder**. Figma files describe visual intent; they are not campaign state, character data, API configuration, or production runtime input. The backend should consume its own documented API inputs and project data files, not scan `.fig` files or exported design folders.
+
+The frontend should implement the approved design using HTML, CSS, and JavaScript. Exported assets may be copied into a deliberate frontend asset location when needed, but that is a controlled handoff step, not an automatic backup-folder dependency.
+
+If the project later wants automated design-token or asset synchronization, define a separate, explicit import pipeline with a chosen source file, schema, validation, generated-output folder, and review step. That pipeline should read an approved export or Figma API response, never an arbitrary backup folder, and it should never allow design files to overwrite campaign or character state.
+
+## 14. Handoff Basics
 
 For each approved screen or component, record:
 

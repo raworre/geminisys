@@ -51,6 +51,12 @@ This file records decisions and unresolved questions for the Geminisys Creator w
 
 **Why:** This prevents the browser from duplicating domain rules or mutating project state directly.
 
+### Figma backup boundary
+
+**Decision:** Figma cloud and version history are the active design source. Local `.fig` backups are recovery copies only, and the backend must not read from the backup folder.
+
+**Why:** Design files express visual intent; they are not campaign state, character data, API configuration, or runtime input. Any future design-token or asset import must be an explicit, validated handoff pipeline.
+
 ## Open Questions
 
 - What are the exact response schemas for Creator crunch operations?
