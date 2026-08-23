@@ -7,15 +7,47 @@ This file records decisions and unresolved questions for the Geminisys Creator w
 
 ## Decided
 
-| Topic | Decision | Rationale |
-|---|---|---|
-| Initial product scope | Creator first; gameplay VTT later | The Creator has a distinct four-phase workflow and should not be mixed with the gameplay state machine. |
-| First artifact | Project-specific Figma and frontend workflow brief | Preserve design intent and implementation context before coding. |
-| Frontend direction | Plain HTML, CSS, and JavaScript | Matches the existing repository and avoids framework setup before the flow is validated. |
-| Prototype mode | Mock mode before connected mode | Allows review without depending on incomplete AI/backend behavior. |
-| Figma setup | New free-plan catalogue assumed | No existing Figma constraints have been supplied; verify plan and plugin limits before automation. |
-| Responsive scope | Desktop and laptop first | Matches the current Creator and gameplay planning; mobile targets are not yet defined. |
-| Authority boundary | Backend owns AI, legality, XP, persistence, and generated files; frontend owns presentation and data binding | Prevents the browser from duplicating domain rules or mutating project state directly. |
+### Initial product scope
+
+**Decision:** Creator first; gameplay VTT later.
+
+**Why:** The Creator has a distinct four-phase workflow and should not be mixed with the gameplay state machine.
+
+### First artifact
+
+**Decision:** Create a project-specific Figma and frontend workflow brief.
+
+**Why:** This preserves design intent and implementation context before coding.
+
+### Frontend direction
+
+**Decision:** Use plain HTML, CSS, and JavaScript.
+
+**Why:** This matches the existing repository and avoids framework setup before the flow is validated.
+
+### Prototype mode
+
+**Decision:** Build and review mock mode before connected mode.
+
+**Why:** The flow can be evaluated without depending on incomplete AI or backend behavior.
+
+### Figma setup
+
+**Decision:** Assume a new free-plan catalogue for now.
+
+**Why:** No existing Figma constraints have been supplied. Plan and plugin limits will be verified before relying on automation.
+
+### Responsive scope
+
+**Decision:** Start with desktop and laptop layouts.
+
+**Why:** This matches the current Creator and gameplay planning. Mobile targets have not yet been defined.
+
+### Authority boundary
+
+**Decision:** The backend owns AI, legality, XP, persistence, and generated files. The frontend owns presentation and data binding.
+
+**Why:** This prevents the browser from duplicating domain rules or mutating project state directly.
 
 ## Open Questions
 
@@ -35,7 +67,7 @@ This file records decisions and unresolved questions for the Geminisys Creator w
 
 When a decision changes:
 
-1. Update the decision table.
+1. Update the relevant decision entry.
 2. Add the previous direction and the reason for changing it under a dated entry below.
 3. Update `docs/Creator_Figma_and_Frontend_Workflow.md` only after the new direction is agreed.
 4. Review affected API mappings, screens, and verification steps.

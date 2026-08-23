@@ -74,7 +74,78 @@ Create one new catalogue file, assuming a free plan until plan and plugin limits
 
 Keep the gameplay VTT out of this first catalogue. Add it later as a separate page or file once the Creator contract and workflow are stable.
 
-## 5. Visual Foundations
+## 5. Figma Setup Walkthrough
+
+This is the practical first-session setup for creating the catalogue. The names below align the original VTT tutorial with the Creator-first catalogue defined above.
+
+### Step 1: Create the file
+
+1. Go to Figma.com and create a free account.
+2. When prompted to create a team, select **Skip** to remain in the personal workspace.
+3. From the home dashboard, select **Drafts**.
+4. Select **+ Design file**.
+5. Rename the file to `Geminisys_Creator_UI_Catalogue`.
+
+Verify the free-plan limits, sharing permissions, export options, and any plugin requirements before relying on automation. `VTT_Master_UI_Catalogue` remains a reasonable alternative if the catalogue later expands to include the gameplay VTT.
+
+### Step 2: Learn the workspace
+
+Figma has three main work areas:
+
+- **Left navigation and Layers panel:** pages and every element on the current canvas.
+- **Center canvas:** the infinite workspace for frames, components, and screen layouts.
+- **Right Properties panel:** dimensions, colors, typography, Auto Layout, and export settings.
+
+### Step 3: Create the catalogue pages
+
+Rename the initial page and add the remaining pages in this order:
+
+- `00 Read Me`
+- `01 Foundations`
+- `02 Components`
+- `03 Creator Screens`
+- `04 States and Flows`
+- `05 Handoff Exports`
+- `99 Archive`
+
+The simpler tutorial names map as follows: **Design System & Tokens** to `01 Foundations`, **Master Components** to `02 Components`, **Screen Mockups** to `03 Creator Screens`, **Asset Export Board** to `05 Handoff Exports`, and **Visual History** to `99 Archive`.
+
+### Step 4: Essential shortcuts
+
+Use these six shortcuts while building standard interface elements:
+
+- `F`: create a Frame.
+- `T`: create Text.
+- `R`: create a Rectangle.
+- `Shift + A`: apply Auto Layout to the selection.
+- `Ctrl + Alt + K` on Windows or `Cmd + Option + K` on Mac: create a Component.
+- `Spacebar + click and drag`: pan around the canvas.
+
+### Step 5: Create the first reusable button
+
+Use the `02 Components` page for the exercise:
+
+1. Press `T`, click the canvas, and type `CONTINUE TO CRUNCH`.
+2. Use a bold, readable placeholder font at approximately 14px. Inter or Roboto is acceptable for this first exercise; choose and document the final type family during the Foundations pass.
+3. With the text selected, press `Shift + A` to wrap it in an Auto Layout frame.
+4. Add a temporary dark shell fill such as `#1E1E2E`.
+5. Set horizontal padding to 16px and vertical padding to 8px.
+6. Set the corner radius to 6px or less.
+7. Select the frame and choose **Create Component**, or press `Ctrl + Alt + K` on Windows.
+
+The button is now a reusable component. Keep its label and state behavior generic so it can later support actions such as **Save Draft**, **Retry**, or **Finalize Campaign**. The final palette may change; use semantic token names rather than treating this placeholder fill as permanent.
+
+### Step 6: Place and update an instance
+
+1. Open `03 Creator Screens`.
+2. Press `F` and create a desktop frame, such as 1920 x 1080, for an initial screen mockup.
+3. Return to `02 Components`, copy the button component, and paste an instance into the screen frame.
+4. Return to the main component and change its temporary background fill, for example to the provisional amber attention color.
+5. Confirm that the instance on `03 Creator Screens` updates automatically.
+
+This demonstrates the intended Figma workflow: shared visual decisions are made in the component source, while screen mockups use instances. Keep behavior, validation, API calls, and responsive rules in the frontend handoff annotations rather than attempting to encode them only in Figma.
+
+## 6. Visual Foundations
 
 Use a neutral tabletop direction rather than a setting-specific skin. The interface should feel tactile and game-oriented while remaining readable for long chat sessions and dense character forms.
 
@@ -100,7 +171,7 @@ Define and test:
 - Disabled, loading, and error affordances.
 - Stable dimensions for controls so dynamic content does not shift layouts.
 
-## 6. Component Set
+## 7. Component Set
 
 Build ordinary UI components with Auto Layout and variants. Do not force Auto Layout onto spatial or canvas-based surfaces; no map or canvas surface is part of the Creator MVP.
 
@@ -124,7 +195,7 @@ Core components:
 
 Each component should have variants for normal, hover/focus, disabled, loading, success, validation error, and unavailable states where applicable.
 
-## 7. Screen Inventory
+## 8. Screen Inventory
 
 Design desktop-first screens for:
 
@@ -175,7 +246,7 @@ Design desktop-first screens for:
 - Campaign finalization confirmation.
 - Artifact generation progress, success, failure, retry, and completed result.
 
-## 8. Behavioral Handoff Rules
+## 9. Behavioral Handoff Rules
 
 Annotate each interactive component and screen with:
 
@@ -191,7 +262,7 @@ Annotate each interactive component and screen with:
 
 The browser may retain presentation state and session/resource identifiers. It must not calculate final XP legality, mutate character files, parse hidden AI control markers, or guess whether generation succeeded.
 
-## 9. Frontend Implementation Sequence
+## 10. Frontend Implementation Sequence
 
 Keep the prototype small and framework-free:
 
@@ -217,7 +288,7 @@ Store session IDs and resource IDs in client state. Render returned sheets and o
 
 Do not add a framework during this planning cycle. Reconsider only if the plain implementation becomes difficult to maintain after the mock flow is validated.
 
-## 10. Verification Checklist
+## 11. Verification Checklist
 
 - All four Creator phases have normal, loading, empty, disabled, validation, and failure states where relevant.
 - Every interactive action has a documented endpoint, payload, response dependency, and retry path.
@@ -231,7 +302,7 @@ Do not add a framework during this planning cycle. Reconsider only if the plain 
 - Connected tests distinguish missing backend implementation from frontend defects.
 - Gameplay VTT screens, mobile-first layouts, WebSockets, map/canvas rendering, theme switching, STT, and TTS remain outside the first Creator deliverable.
 
-## 11. Ownership
+## 12. Ownership
 
 **Design/frontend owner:** information hierarchy, mockups, visual language, layout, CSS, interaction feel, accessibility presentation, and manual playtesting.
 
