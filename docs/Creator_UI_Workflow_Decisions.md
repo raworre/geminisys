@@ -5,13 +5,15 @@
 
 This file records decisions and unresolved questions for the Geminisys Creator workflow. It is intentionally separate from the workflow brief so the brief can remain readable while the project direction changes.
 
+**Terminology:** In this log, **Creator** means the UI for the entire **Creation phase**. The Creation phase is the complete campaign and character creation process, made up of multiple Creation stages. The **Play phase** begins when the campaign starts and the created characters are in use.
+
 ## Decided
 
 ### Initial product scope
 
-**Decision:** Creator first; gameplay VTT later.
+**Decision:** Creation phase first; Play phase later.
 
-**Why:** The Creator has a distinct four-phase workflow and should not be mixed with the gameplay state machine.
+**Why:** Creation produces the campaign and characters; Play begins afterward when those characters are in use and gameplay actions occur. The two major phases have different workflows and should not be mixed.
 
 ### First artifact
 
@@ -52,12 +54,12 @@ This file records decisions and unresolved questions for the Geminisys Creator w
 ## Open Questions
 
 - What are the exact response schemas for Creator crunch operations?
-- How does each finalized phase hand off data to the next phase?
+- How does each Creation stage hand off data to the next stage?
 - How is a completed Crunch sheet persisted and retrieved?
 - Are generation operations synchronous or job-based?
 - What are the retry and idempotency rules for finalization?
 - How long do sessions live, and how are expiration and concurrent requests handled?
-- How does Phase 4 receive and validate the finalized character roster?
+- How does the Campaign Ignition stage receive and validate the finalized character roster?
 - How are draft and finalized character states represented?
 - What artifact links or stable resource IDs does the backend return?
 - Which desktop/laptop resolutions must be treated as acceptance targets?
@@ -69,7 +71,7 @@ When a decision changes:
 
 1. Update the relevant decision entry.
 2. Add the previous direction and the reason for changing it under a dated entry below.
-3. Update `docs/Creator_Figma_and_Frontend_Workflow.md` only after the new direction is agreed.
+3. Update `docs/Creation_Frontend_Workflow.md` only after the new direction is agreed. Update `docs/Figma_Beginner_Guide.md` only when the general Figma instructions change.
 4. Review affected API mappings, screens, and verification steps.
 
 ## Change History

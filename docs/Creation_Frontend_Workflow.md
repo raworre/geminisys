@@ -1,7 +1,7 @@
 # Geminisys Creator: Figma and Frontend Workflow
 
 **Status:** Working draft
-**Scope:** Creator-first design and frontend planning
+**Scope:** Creation-phase design and frontend planning
 **Last reviewed:** 2026-08-22
 
 > This document is a project-specific working draft. It preserves the current direction while design, API, and product questions are still open. Do not treat it as an implementation contract until the open decisions are resolved.
@@ -10,7 +10,7 @@
 
 Define a practical handoff from Figma to the Geminisys Campaign and Character Creator. Figma owns visual intent and interaction presentation. The frontend owns behavior, state, accessibility, responsive behavior, API integration, and performance. The backend remains authoritative for AI output, Genesys legality, XP calculations, persistence, and generated files.
 
-The immediate product track is the Creator. The gameplay VTT described in `docs/FE_LLD.md` is a later, separate track and should not be mixed into the first Creator catalogue.
+The immediate product track is the **Creation phase**. It produces the campaign and characters that will be used in the later **Play phase**, when the campaign begins and gameplay actions occur. The Play phase described in `docs/FE_LLD.md` is a later, separate track and should not be mixed into the first Creation catalogue.
 
 ## 2. Current Product Context
 
@@ -20,9 +20,13 @@ Geminisys is a local-first Genesys VTT project. The Creator is intended to gener
 - `current_state.md`
 - `character.json`
 
+### Project terminology
+
+In this document, **Creator** refers to the UI for the entire **Creation phase**. The Creation phase is the complete campaign and character creation process. It contains four **Creation stages**: Sandbox Pitch, Character Concepts, Character Crunch, and Campaign Ignition. The later **Play phase** begins when the campaign starts and the created characters are in use.
+
 The current frontend direction is a plain local web app using HTML, CSS, and JavaScript. No frontend framework or build system is currently configured. The Creator should begin in mock mode so its flow can be reviewed without a running AI or backend implementation.
 
-The Creator flow has four phases:
+The Creation phase has four stages:
 
 1. **Sandbox Pitch:** Socratic campaign and setting chat.
 2. **Character Concepts:** Socratic character chat producing a narrative draft.
@@ -34,11 +38,11 @@ The Creator flow has four phases:
 Before connected frontend work is considered complete, the backend team must clarify the following items. The UI may show provisional or unavailable states, but it must not invent production behavior for these gaps.
 
 - Exact response shapes for crunch initialization, buy, refund, finish, and generated resources.
-- How campaign and character data move between Creator phases.
+- How campaign and character data move between Creation stages.
 - How the completed Crunch sheet is persisted and retrieved.
 - Whether finalization is synchronous or asynchronous, including progress, retry, and idempotency behavior.
 - Session lifetime, ownership, expiration, concurrency, and recovery.
-- How Phase 4 receives the finalized character roster.
+- How the Campaign Ignition stage receives the finalized character roster.
 - Draft versus finalized character status.
 - Field-level validation and authoritative XP/legal-purchase errors.
 - Generated artifact links or stable resource identifiers.
@@ -62,90 +66,19 @@ The API review in `api/creator-api_review.md` is the active list of contract que
 
 ## 4. Figma Catalogue
 
-Create one new catalogue file, assuming a free plan until plan and plugin limits are verified. Use these pages:
+Create one new catalogue file, assuming a free plan until plan and plugin limits are verified. Follow the practical setup steps in [Figma_Beginner_Guide.md](Figma_Beginner_Guide.md), then use these pages:
 
 - `00 Read Me`: scope, ownership, status, open questions, and links to API/schema documents.
 - `01 Foundations`: semantic color, typography, spacing, borders, focus, motion, and accessibility tokens.
 - `02 Components`: reusable components and variants.
-- `03 Creator Screens`: the four phase screens and completed-result views.
+- `03 Creator Screens`: the four Creation-stage screens and completed-result views.
 - `04 States and Flows`: loading, empty, disabled, validation, retry, unsaved changes, and failure flows.
 - `05 Handoff Exports`: annotated frames, asset exports, endpoint mappings, and implementation notes.
 - `99 Archive`: superseded explorations and rejected directions.
 
 Keep the gameplay VTT out of this first catalogue. Add it later as a separate page or file once the Creator contract and workflow are stable.
 
-## 5. Figma Setup Walkthrough
-
-This is the practical first-session setup for creating the catalogue. The names below align the original VTT tutorial with the Creator-first catalogue defined above.
-
-### Step 1: Create the file
-
-1. Go to Figma.com and create a free account.
-2. When prompted to create a team, select **Skip** to remain in the personal workspace.
-3. From the home dashboard, select **Drafts**.
-4. Select **+ Design file**.
-5. Rename the file to `Geminisys_Creator_UI_Catalogue`.
-
-Verify the free-plan limits, sharing permissions, export options, and any plugin requirements before relying on automation. `VTT_Master_UI_Catalogue` remains a reasonable alternative if the catalogue later expands to include the gameplay VTT.
-
-### Step 2: Learn the workspace
-
-Figma has three main work areas:
-
-- **Left navigation and Layers panel:** pages and every element on the current canvas.
-- **Center canvas:** the infinite workspace for frames, components, and screen layouts.
-- **Right Properties panel:** dimensions, colors, typography, Auto Layout, and export settings.
-
-### Step 3: Create the catalogue pages
-
-Rename the initial page and add the remaining pages in this order:
-
-- `00 Read Me`
-- `01 Foundations`
-- `02 Components`
-- `03 Creator Screens`
-- `04 States and Flows`
-- `05 Handoff Exports`
-- `99 Archive`
-
-The simpler tutorial names map as follows: **Design System & Tokens** to `01 Foundations`, **Master Components** to `02 Components`, **Screen Mockups** to `03 Creator Screens`, **Asset Export Board** to `05 Handoff Exports`, and **Visual History** to `99 Archive`.
-
-### Step 4: Essential shortcuts
-
-Use these six shortcuts while building standard interface elements:
-
-- `F`: create a Frame.
-- `T`: create Text.
-- `R`: create a Rectangle.
-- `Shift + A`: apply Auto Layout to the selection.
-- `Ctrl + Alt + K` on Windows or `Cmd + Option + K` on Mac: create a Component.
-- `Spacebar + click and drag`: pan around the canvas.
-
-### Step 5: Create the first reusable button
-
-Use the `02 Components` page for the exercise:
-
-1. Press `T`, click the canvas, and type `CONTINUE TO CRUNCH`.
-2. Use a bold, readable placeholder font at approximately 14px. Inter or Roboto is acceptable for this first exercise; choose and document the final type family during the Foundations pass.
-3. With the text selected, press `Shift + A` to wrap it in an Auto Layout frame.
-4. Add a temporary dark shell fill such as `#1E1E2E`.
-5. Set horizontal padding to 16px and vertical padding to 8px.
-6. Set the corner radius to 6px or less.
-7. Select the frame and choose **Create Component**, or press `Ctrl + Alt + K` on Windows.
-
-The button is now a reusable component. Keep its label and state behavior generic so it can later support actions such as **Save Draft**, **Retry**, or **Finalize Campaign**. The final palette may change; use semantic token names rather than treating this placeholder fill as permanent.
-
-### Step 6: Place and update an instance
-
-1. Open `03 Creator Screens`.
-2. Press `F` and create a desktop frame, such as 1920 x 1080, for an initial screen mockup.
-3. Return to `02 Components`, copy the button component, and paste an instance into the screen frame.
-4. Return to the main component and change its temporary background fill, for example to the provisional amber attention color.
-5. Confirm that the instance on `03 Creator Screens` updates automatically.
-
-This demonstrates the intended Figma workflow: shared visual decisions are made in the component source, while screen mockups use instances. Keep behavior, validation, API calls, and responsive rules in the frontend handoff annotations rather than attempting to encode them only in Figma.
-
-## 6. Visual Foundations
+## 5. Visual Foundations
 
 Use a neutral tabletop direction rather than a setting-specific skin. The interface should feel tactile and game-oriented while remaining readable for long chat sessions and dense character forms.
 
@@ -171,14 +104,14 @@ Define and test:
 - Disabled, loading, and error affordances.
 - Stable dimensions for controls so dynamic content does not shift layouts.
 
-## 7. Component Set
+## 6. Component Set
 
 Build ordinary UI components with Auto Layout and variants. Do not force Auto Layout onto spatial or canvas-based surfaces; no map or canvas surface is part of the Creator MVP.
 
 Core components:
 
 - App shell and header.
-- Four-step phase indicator.
+- Four-stage Creation indicator.
 - Chat transcript and message composer.
 - Session/status banner.
 - Completion gate and confirmation dialog.
@@ -195,7 +128,7 @@ Core components:
 
 Each component should have variants for normal, hover/focus, disabled, loading, success, validation error, and unavailable states where applicable.
 
-## 8. Screen Inventory
+## 7. Screen Inventory
 
 Design desktop-first screens for:
 
@@ -209,7 +142,7 @@ Design desktop-first screens for:
 - Operation succeeded.
 - Operation failed without losing user input.
 
-### Phase 1: Sandbox Pitch
+### Creation Stage 1: Sandbox Pitch
 
 - Empty campaign chat.
 - Active conversation.
@@ -217,7 +150,7 @@ Design desktop-first screens for:
 - Campaign slug and finalize confirmation.
 - Campaign generation progress, success, and failure.
 
-### Phase 2: Character Concepts
+### Creation Stage 2: Character Concepts
 
 - Character chat with campaign context.
 - Active character conversation.
@@ -225,7 +158,7 @@ Design desktop-first screens for:
 - Draft save progress, success, and failure.
 - Transition into Crunch when the backend confirms the draft.
 
-### Phase 3: Character Crunch
+### Creation Stage 3: Character Crunch
 
 - Crunch initialization and sheet loading.
 - Narrative profile alongside mechanical sheet.
@@ -238,7 +171,7 @@ Design desktop-first screens for:
 - Unsaved changes and draft reload.
 - Finish eligibility confirmation and completion result.
 
-### Phase 4: Campaign Ignition
+### Creation Stage 4: Campaign Ignition
 
 - Campaign chat with finalized character context.
 - Character roster or roster-unavailable state.
@@ -246,7 +179,7 @@ Design desktop-first screens for:
 - Campaign finalization confirmation.
 - Artifact generation progress, success, failure, retry, and completed result.
 
-## 9. Behavioral Handoff Rules
+## 8. Behavioral Handoff Rules
 
 Annotate each interactive component and screen with:
 
@@ -262,7 +195,7 @@ Annotate each interactive component and screen with:
 
 The browser may retain presentation state and session/resource identifiers. It must not calculate final XP legality, mutate character files, parse hidden AI control markers, or guess whether generation succeeded.
 
-## 10. Frontend Implementation Sequence
+## 9. Frontend Implementation Sequence
 
 Keep the prototype small and framework-free:
 
@@ -276,8 +209,8 @@ frontend/
 
 Build in this order:
 
-1. Semantic shell and phase navigation.
-2. Mock chat for Phases 1, 2, and 4.
+1. Semantic shell and Creation-stage navigation.
+2. Mock chat for the Sandbox Pitch, Character Concepts, and Campaign Ignition stages.
 3. Mock draft save and Crunch sheet.
 4. Mock buy/refund, validation, XP feedback, and finish.
 5. Mock final campaign generation and artifact result.
@@ -288,24 +221,24 @@ Store session IDs and resource IDs in client state. Render returned sheets and o
 
 Do not add a framework during this planning cycle. Reconsider only if the plain implementation becomes difficult to maintain after the mock flow is validated.
 
-## 11. Verification Checklist
+## 10. Verification Checklist
 
-- All four Creator phases have normal, loading, empty, disabled, validation, and failure states where relevant.
+- All four Creation stages have normal, loading, empty, disabled, validation, and failure states where relevant.
 - Every interactive action has a documented endpoint, payload, response dependency, and retry path.
 - Mock mode completes campaign chat, character chat, draft save, Crunch buy/refund, Crunch finish, and campaign ignition.
-- Session IDs survive multiple messages and phase transitions.
+- Session IDs survive multiple messages and Creation-stage transitions.
 - Character sheets use `api/genesys.schema.json` for field structure while backend validation remains authoritative.
 - Failed requests preserve user-entered chat, form, and slug values.
 - Keyboard-only navigation and visible focus work throughout.
 - Text remains readable at common desktop and laptop widths.
 - Reduced-motion preferences are respected.
 - Connected tests distinguish missing backend implementation from frontend defects.
-- Gameplay VTT screens, mobile-first layouts, WebSockets, map/canvas rendering, theme switching, STT, and TTS remain outside the first Creator deliverable.
+- Play-phase screens, mobile-first layouts, WebSockets, map/canvas rendering, theme switching, STT, and TTS remain outside the first Creation deliverable.
 
-## 12. Ownership
+## 11. Ownership
 
 **Design/frontend owner:** information hierarchy, mockups, visual language, layout, CSS, interaction feel, accessibility presentation, and manual playtesting.
 
 **Backend owner/support:** API contract, session and persistence semantics, FastAPI integration, server validation, AI generation, artifact creation, and network setup.
 
-Review this document and the Figma catalogue together at the end of each phase. Keep the current open questions visible until the API contract resolves them.
+Review this document and the Figma catalogue together at the end of each Creation stage. Keep the current open questions visible until the API contract resolves them.
