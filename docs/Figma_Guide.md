@@ -1,4 +1,4 @@
-# Figma Beginner Guide for Geminisys
+# Figma Guide for Geminisys
 
 **Status:** Working draft
 **Applies to:** The Geminisys Creator UI and future Play-phase UI work
@@ -65,7 +65,7 @@ Names become important when finding components and translating the design into H
 
 ## 6. Establish Provisional Foundations
 
-Before building screens, use `01 Foundations` to create a small, clearly labeled set of provisional styles or variables for:
+Before building screens, use the `FOUNDATIONS` section on the `01 Creator Phase` page to create a small, clearly labeled set of provisional styles or variables for:
 
 - Shell background.
 - Primary text and muted text.

@@ -38,11 +38,15 @@ An **API**, or application programming interface, is an agreed way for software 
 
 A **source of truth** is the place that owns a particular kind of information. In this workflow, Figma is the visual source of truth, the frontend is the behavior and presentation-state source of truth, and the backend is the domain-data source of truth. If two sources disagree, the owner of that kind of information should decide which one is correct.
 
+### Sandbox Pitch
+
+**Sandbox Pitch** is the first Creation-stage area in Geminisys. It is a contained conversation where a person and the AI explore and shape a campaign idea before it is finalized. **Sandbox** means the idea can be tried and adjusted; **pitch** means the developing proposal for the campaign's premise, tone, and important choices. It is part of the Creation phase, not the Play phase and not the final campaign file.
+
 ## Figma File Structure
 
 ### Catalogue pages
 
-**Catalogue pages** are the named sections in the left sidebar of one Figma file. They organize the work but do not automatically affect the finished application. While the project is limited to three free pages, the Geminisys master catalogue uses `01 Creator Phase`, `02 Play Phase`, and `03 Reserve`. Use Figma sections within those pages for foundations, components, Creator screens, states and flows, handoff exports, and archived explorations.
+**Catalogue pages** are the named sections in the left sidebar of one Figma file. They organize the work but do not automatically affect the finished application. While the project is limited to three free pages, the Geminisys catalogue uses `01 Creator Phase`, `02 Play Phase`, and `03 Reserve`. Use Figma sections within those pages for foundations, components, Creator screens, states and flows, handoff exports, and archived explorations.
 
 ### Frame
 

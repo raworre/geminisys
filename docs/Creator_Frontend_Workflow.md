@@ -66,7 +66,7 @@ The API review in `api/creator-api_review.md` is the active list of contract que
 
 ## 4. Figma Catalogue
 
-Create one catalogue file named `Geminisys_UI_Catalogue`, assuming a free plan until plan and plugin limits are verified. Follow the practical setup steps in [Figma_Beginner_Guide.md](Figma_Beginner_Guide.md), then use these three pages:
+Create one catalogue file named `Geminisys_UI_Catalogue`, assuming a free plan until plan and plugin limits are verified. Follow the project overview in [Figma_Guide.md](Figma_Guide.md) and the hands-on lessons in [Figma_Practical_Learning_Guide.md](Figma_Practical_Learning_Guide.md), then use these three pages:
 
 - `01 Creator Phase`: foundations, components, the four Creation-stage screens, shared states and flows, handoff notes, and links to API/schema documents. Use sections for each area.
 - `02 Play Phase`: reserved for gameplay screens, maps, encounters, character actions, and Play-phase states when that work begins.
