@@ -1,17 +1,17 @@
-# Figma Practical Learning Guide
+# Figma Basics and Workflow
 
 **Status:** Working draft
-**Applies to:** Learning the Figma skills needed for the Geminisys UI catalogue
-**Companion document:** <u>[Figma_Guide.md](Figma_Guide.md)</u>
+**Applies to:** Learning and applying the Figma skills needed for the Geminisys UI catalogue
 
 > This is a hands-on workbook, not a test. Move slowly, repeat steps, and stop at any checkpoint. The goal is to build a reliable mental picture of Figma one small object at a time.
 
 ## Guide Map
 
 - <u>[Part I: Tools and Index](#part-i-tools-and-index)</u>: sections 1-4 explain the overall map and the basic Figma objects.
-- <u>[Part II: Practice Workbook](#part-ii-practice-workbook)</u>: section 5 onward teaches the skills through small exercises.
+- <u>[Part II: Practice Workbook](#part-ii-practice-workbook)</u>: section 5 onward sets up the file and teaches the skills through small exercises.
+- <u>[Part III: Geminisys Project Workflow](#part-iii-geminisys-project-workflow)</u>: project setup, backup, and handoff reference.
 
-You can read Part I first, then jump directly to the practice section when you are ready to make something.
+Read Part I first, complete the setup at the start of Part II, and then work through the exercises in order. Use Part III as project reference when you are ready to apply the skills to the catalogue.
 
 ## Part I: Tools and Index
 
@@ -178,7 +178,25 @@ A <span style="color: #e0b341;"><strong>variant</strong></span> is a related ver
 
 ## Part II: Practice Workbook
 
-## 5. First Practice: Make a Shape
+## 5. Set Up Your Working File
+
+Create one Figma Design file named `Geminisys_UI_Catalogue`. Treat current free-plan, plugin, sharing, and export limits as assumptions until they are verified.
+
+Create these pages in order:
+
+- `01 Creator Phase`
+- `02 Play Phase`
+- `03 Reserve`
+
+On `01 Creator Phase`, create sections for `FOUNDATIONS`, `COMPONENTS`, `SANDBOX PITCH`, `CHARACTER CONCEPTS`, `CHARACTER CRUNCH`, `CAMPAIGN IGNITION`, `STATES AND FLOWS`, and `HANDOFF`. Keep `02 Play Phase` reserved for later gameplay work and `03 Reserve` available for experiments or archived material.
+
+Use clear names for <span style="color: #e0b341;"><strong>layers</strong></span> and <span style="color: #e0b341;"><strong>components</strong></span>, such as `Button / Primary`, `Input / Chat composer`, and `Banner / Error`.
+
+### Checkpoint
+
+You have one named file, three ordered pages, and a clear place for the first exercises: the `FOUNDATIONS` section on `01 Creator Phase`.
+
+## 6. First Practice: Make a Shape
 
 ### Goal
 
@@ -190,7 +208,7 @@ This is like placing one <span style="color: #198754;"><strong>ingredient</stron
 
 ### Steps
 
-1. Create a blank area on a page.
+1. Open the `FOUNDATIONS` section on the `01 Creator Phase` page and create a blank practice area.
 2. Press `R` for Rectangle.
 3. Click and drag on the canvas to draw a rectangle.
 4. Click the rectangle to select it.
@@ -203,7 +221,7 @@ This is like placing one <span style="color: #198754;"><strong>ingredient</stron
 
 You can identify which <span style="color: #e0b341;"><strong>object</strong></span> is selected, move it, resize it, and change its fill color.
 
-## 6. Second Practice: Make a Label
+## 7. Second Practice: Make a Label
 
 ### Goal
 
@@ -227,7 +245,7 @@ This is like writing a menu label or station sign. The text is an <span style="c
 
 The Layers panel shows separate <span style="color: #e0b341;"><strong>objects</strong></span> for the rectangle and the text. Selecting one does not automatically select the other.
 
-## 7. Containers: Put Objects on a Food Tray
+## 8. Containers: Put Objects on a Food Tray
 
 ### Goal
 
@@ -266,7 +284,7 @@ Move one child object: the other child object stays where it is.
 - If the <span style="color: #e0b341;"><strong>object</strong></span> is not inside the <span style="color: #e0b341;"><strong>frame</strong></span>, drag its <span style="color: #e0b341;"><strong>layer</strong></span> underneath the <span style="color: #e0b341;"><strong>frame</strong></span> in the Layers panel.
 - If you select the wrong thing, click an empty part of the canvas and try again.
 
-## 8. A Practical Translation Table
+## 9. A Practical Translation Table
 
 | Figma idea | Familiar anchor | Geminisys example |
 | --- | --- | --- |
@@ -297,11 +315,15 @@ Move one child object: the other child object stays where it is.
 
 This is why organization matters: you should be able to follow the path from the department to the station to the recipe to the state.
 
-## 9. Variables: Labeled Bins for Reusable Values
+## 10. Variables: Labeled Bins for Reusable Values
 
 ### The plain-language idea
 
 A <span style="color: #e0b341;"><strong>variable</strong></span> is a named place to store a value that you expect to reuse. The value might be a color, spacing amount, number, or text value, depending on the variable type Figma supports.
+
+### What is the shell?
+
+The <span style="color: #e0b341;"><strong>shell</strong></span> is the persistent outer structure of the application: its main background, header, navigation, and surrounding layout. It frames the changing content inside it, such as a chat, form, or campaign screen. A token such as `color/background/shell` stores the shell's shared background value so related <span style="color: #e0b341;"><strong>objects</strong></span> can use the same visual foundation.
 
 ### Anchor: labeled ingredient bins
 
@@ -354,7 +376,7 @@ You understand the relationship: the <span style="color: #e0b341;"><strong>varia
 
 Do not stop your project. Write the intended token name beside the design and use a temporary color style or fill. The important first step is learning which values should be shared.
 
-## 10. Styles: Saved Appearance Recipes
+## 11. Styles: Saved Appearance Recipes
 
 A <span style="color: #e0b341;"><strong>style</strong></span> is a saved appearance recipe. It can describe a color or text formatting, depending on what Figma supports in the current interface.
 
@@ -382,7 +404,7 @@ Spacing variable: spacing/16
 
 These names tell you where the value belongs and what job it performs.
 
-## 11. Auto Layout: A Self-Arranging Food Tray
+## 12. Auto Layout: A Self-Arranging Food Tray
 
 ### The plain-language idea
 
@@ -421,7 +443,7 @@ SHORT ORDER                    LONG ORDER
 - **Fill container:** expand to use available room. Like an <span style="color: #198754;"><strong>ingredient</strong></span> filling the available space on a serving shelf.
 - **Fixed:** stay at a deliberate size. Like a standard button height or icon tile.
 
-## 12. Components and States
+## 13. Components and States
 
 ### Goal
 
@@ -456,7 +478,7 @@ Button / Primary  ----------->  screen button 1
 		   updates linked servings
 ```
 
-## 13. Screens and Prototypes
+## 14. Screens and Prototypes
 
 ### Frame as screen
 
@@ -486,7 +508,7 @@ A prototype connection does not implement frontend routing, API calls, validatio
 
 You can explain the difference between showing a path in Figma and building the real behavior in the frontend.
 
-## 14. Troubleshooting by Symptom
+## 15. Troubleshooting by Symptom
 
 ### “I cannot select the thing I want.”
 
@@ -516,7 +538,7 @@ Zoom in, close or collapse panels, work inside one named section, and select onl
 
 Return to the last checkpoint. If the result is not visible, undo the last action and repeat only that action. Do not restart the whole file.
 
-## 15. Learning Checkpoints
+## 16. Learning Checkpoints
 
 Pause after each milestone:
 
@@ -532,25 +554,79 @@ Pause after each milestone:
 - [ ] I can make a simple prototype connection.
 - [ ] I can tell which decisions belong to Figma and which belong to the frontend.
 
-## 16. A First Geminisys Practice Session
+## 17. A First Geminisys Practice Session
 
-When you are ready to connect the skills to the real catalogue, use this order:
+After completing the earlier exercises, connect the skills to the real catalogue in this order:
 
-1. Open `Geminisys_UI_Catalogue`.
-2. Open the `01 Creator Phase` page.
-3. Create or find the `COMPONENTS` section.
-4. Make one primary button.
-5. Make one text input or chat composer.
-6. Make a small `SANDBOX PITCH` screen frame.
-7. Place linked component instances in that screen.
-8. Add one loading state and one validation-error state.
-9. Write down any behavior that belongs to the frontend rather than Figma.
-10. Stop and back up the file after the checkpoint.
+1. Open the `COMPONENTS` section on the `01 Creator Phase` page.
+2. Make one primary button.
+3. Make one text input or chat composer.
+4. Make a small `SANDBOX PITCH` screen frame.
+5. Place linked component instances in that screen.
+6. Add one loading state and one validation-error state.
+7. Write down any behavior that belongs to the frontend rather than Figma.
+8. Stop and back up the file after the checkpoint.
 
 The target is not a finished catalogue in one sitting. The target is one understandable, reusable piece at a time.
 
-## 17. Related Documents
+## Part III: Geminisys Project Workflow
 
-- <u>[Figma_Guide.md](Figma_Guide.md)</u>: project overview, catalogue organization, foundations, components, backup, and handoff.
+## 18. Project Foundations
+
+Before building screens, use the `FOUNDATIONS` section to define provisional <span style="color: #e0b341;"><strong>variables</strong></span> or <span style="color: #e0b341;"><strong>styles</strong></span> for:
+
+- Shell background, primary text, and muted text.
+- Accent, attention, information, danger, and success states.
+- Spacing values such as 4, 8, 12, 16, 24, and 32.
+- Border radius, border color, and typography.
+
+Use semantic names such as `color/background/shell` and `color/state/attention`. The frontend should mirror those roles with CSS custom properties. Color must not be the only signal for state; pair it with text, labels, position, or icon shape.
+
+## 19. Build the Creator Component Set
+
+Build ordinary interface components with <span style="color: #e0b341;"><strong>Auto Layout</strong></span> and related <span style="color: #e0b341;"><strong>variants</strong></span>. Core Creator components include:
+
+- App shell and header.
+- Four-stage Creation indicator.
+- Chat transcript, message composer, and session/status banner.
+- Completion gate, confirmation dialog, campaign slug, and metadata fields.
+- Character identity and narrative-profile summary.
+- Guided/Veteran mode toggle.
+- Crunch characteristic, skill, talent, XP, upgrade, and refund controls.
+- Field validation and API problem messages.
+
+Do not force Auto Layout onto maps, canvas overlays, fog of war, or other spatial controls. Those surfaces need different layout and rendering techniques.
+
+## 20. Back Up and Restore the Catalogue
+
+The Figma backup preserves design work; it is not a runtime data source. Use Figma Version History first, then local `.fig` snapshots when available. Keep snapshots outside application runtime folders, such as:
+
+```text
+geminisys-design-backups/
+	figma/
+		Geminisys_UI_Catalogue_YYYY-MM-DD_short-description.fig
+		README.md
+```
+
+Create a named Figma version after foundations, major component milestones, before a visual redesign, before handoff, and at the end of a productive session. Record the date, file identifier or URL, major changes, and known limitations. Never store credentials, tokens, private links, or exported user data with a backup.
+
+If a local `.fig` export is unavailable, duplicate the file in Figma as a named milestone. Do not substitute a screenshot for an editable backup.
+
+The backend must not scan the backup folder or use Figma files as campaign state, character data, API configuration, or production input. Any future token or asset synchronization needs a separate, explicit, validated import pipeline.
+
+## 21. Handoff Basics
+
+For each approved screen or component, record:
+
+- <span style="color: #e0b341;"><strong>Frame</strong></span> name and target size.
+- <span style="color: #e0b341;"><strong>Component</strong></span> and <span style="color: #e0b341;"><strong>variant</strong></span> names.
+- Typography, color, spacing, and border tokens.
+- Interactive states, accessibility intent, and responsive behavior.
+- Any API or state dependency, linked from the Creation workflow document.
+
+Export only assets the frontend actually needs. The Figma catalogue is a source of visual truth, not a replacement for frontend behavior or the backend contract.
+
+## 22. Related Documents
+
 - <u>[Luckiis_Beginner_Glossary.md](Luckiis_Beginner_Glossary.md)</u>: concise definitions for Figma, frontend, API, layout, accessibility, and handoff terms.
 - <u>[Creator_Frontend_Workflow.md](Creator_Frontend_Workflow.md)</u>: Creation-stage screens, states, API boundaries, and frontend behavior.

@@ -77,7 +77,7 @@ When a decision changes:
 
 1. Update the relevant decision entry.
 2. Add the previous direction and the reason for changing it under a dated entry below.
-3. Update `docs/Creator_Frontend_Workflow.md` only after the new direction is agreed. Update `docs/Figma_Guide.md` only when the general Figma instructions change.
+3. Update `docs/Creator_Frontend_Workflow.md` only after the new direction is agreed. Update `docs/Figma_Basics_and_Workflow.md` when the general Figma instructions or workflow change.
 4. Review affected API mappings, screens, and verification steps.
 
 ## Change History
