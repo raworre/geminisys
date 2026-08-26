@@ -66,17 +66,13 @@ The API review in `api/creator-api_review.md` is the active list of contract que
 
 ## 4. Figma Catalogue
 
-Create one new catalogue file, assuming a free plan until plan and plugin limits are verified. Follow the practical setup steps in [Figma_Beginner_Guide.md](Figma_Beginner_Guide.md), then use these pages:
+Create one catalogue file named `Geminisys_UI_Catalogue`, assuming a free plan until plan and plugin limits are verified. Follow the practical setup steps in [Figma_Beginner_Guide.md](Figma_Beginner_Guide.md), then use these three pages:
 
-- `00 Read Me`: scope, ownership, status, open questions, and links to API/schema documents.
-- `01 Foundations`: semantic color, typography, spacing, borders, focus, motion, and accessibility tokens.
-- `02 Components`: reusable components and variants.
-- `03 Creator Screens`: the four Creation-stage screens and completed-result views.
-- `04 States and Flows`: loading, empty, disabled, validation, retry, unsaved changes, and failure flows.
-- `05 Handoff Exports`: annotated frames, asset exports, endpoint mappings, and implementation notes.
-- `99 Archive`: superseded explorations and rejected directions.
+- `01 Creator Phase`: foundations, components, the four Creation-stage screens, shared states and flows, handoff notes, and links to API/schema documents. Use sections for each area.
+- `02 Play Phase`: reserved for gameplay screens, maps, encounters, character actions, and Play-phase states when that work begins.
+- `03 Reserve`: available for a future phase, experiments, archive material, or temporary overflow.
 
-Keep the gameplay VTT out of this first catalogue. Add it later as a separate page or file once the Creator contract and workflow are stable.
+Keep Play-phase work on its reserved page rather than creating a second file. If the Figma plan later allows more pages, sections can be promoted into dedicated pages.
 
 ## 5. Visual Foundations
 

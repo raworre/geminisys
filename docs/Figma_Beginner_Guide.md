@@ -12,7 +12,7 @@ Figma's dashboard, onboarding screens, and right-panel labels can change over ti
 
 For this project, Figma owns visual intent: layout, typography, color, component appearance, and visual interaction states. The frontend owns behavior, API calls, validation, accessibility implementation, responsive behavior, and performance.
 
-The first catalogue is for the Creator UI, which covers the entire Creation phase. Do not add Play-phase screens until that work is intentionally started.
+The master catalogue covers the full Geminisys UI. While the project is limited to three free Figma pages, keep the phases organized as pages within one file and use sections to divide the work.
 
 ## 2. Vocabulary and Concepts
 
@@ -24,9 +24,9 @@ The detailed beginner glossary is maintained separately in [Luckiis_Beginner_Glo
 2. If onboarding asks you to create a team, staying in the personal workspace is fine for this private draft. The exact onboarding choices may vary.
 3. From the home dashboard, open **Drafts** or the equivalent personal-drafts area.
 4. Create a new **Design file**.
-5. Rename it `Geminisys_Creator_UI_Catalogue`.
+5. Rename it `Geminisys_UI_Catalogue`.
 
-Before depending on plugins, libraries, or automated exports, verify the current free-plan limits, sharing permissions, and export options. `VTT_Master_UI_Catalogue` can be used later if the Play phase joins this catalogue.
+Before depending on plugins, libraries, or automated exports, verify the current free-plan limits, sharing permissions, and export options. Keep the file within the available three-page limit for now.
 
 ## 4. Understand the Workspace
 
@@ -42,13 +42,17 @@ If a control appears in a different location, search Figma's menus or use the ri
 
 Rename the initial page and add the remaining pages in this order:
 
-- `00 Read Me`
-- `01 Foundations`
-- `02 Components`
-- `03 Creator Screens`
-- `04 States and Flows`
-- `05 Handoff Exports`
-- `99 Archive`
+- `01 Creator Phase`
+- `02 Play Phase`
+- `03 Reserve`
+
+Use sections inside the pages to keep the catalogue organized:
+
+- `01 Creator Phase`: `FOUNDATIONS`, `COMPONENTS`, `SANDBOX PITCH`, `CHARACTER CONCEPTS`, `CHARACTER CRUNCH`, `CAMPAIGN IGNITION`, `STATES AND FLOWS`, and `HANDOFF`.
+- `02 Play Phase`: leave empty until Play-phase design begins; then add gameplay screens, maps, encounters, character actions, and Play-phase states as sections.
+- `03 Reserve`: keep available for a future phase, experiments, archive material, or temporary overflow.
+
+Add a small index at the top of each page and leave visible spacing between sections. When more pages become available, sections can be promoted into dedicated pages without redesigning their contents.
 
 Use clear names for layers and components from the beginning. For example:
 
@@ -88,7 +92,7 @@ Shortcuts can be changed by the operating system, browser, or Figma settings. If
 
 ## 8. Create the First Main Component
 
-Use the `02 Components` page for this exercise:
+Use the `COMPONENTS` section on the `01 Creator Phase` page for this exercise:
 
 1. Press `T`, click the canvas, and type `CONTINUE TO CRUNCH`.
 2. Use a readable placeholder font at approximately 14px. Inter or Roboto is acceptable for the exercise; choose and document the final type family during the Foundations pass.
@@ -117,7 +121,7 @@ Name variants with properties such as `State=Default` and `State=Disabled`. Use 
 
 ## 10. Place a Linked Instance on Screen Frames
 
-1. Open `03 Creator Screens`.
+1. Open the `01 Creator Phase` page and go to the appropriate screen section.
 2. Create at least two desktop frames: `1440 x 900` for a laptop and `1920 x 1080` for a larger display. Add more target sizes only when the project decides they are required.
 3. Insert an instance of `Button / Primary` from the Assets panel or the component's instance action. This makes the main-component relationship explicit. Copy and paste within the same file can also work, but the Assets workflow is easier to verify.
 4. Place the instance in the appropriate Creator screen.
@@ -174,9 +178,11 @@ Keep local snapshots outside the application runtime folders. A practical reposi
 ```text
 geminisys-design-backups/
 	figma/
-		Geminisys_Creator_UI_Catalogue_2026-08-23.fig
+		Geminisys_UI_Catalogue_YYYY-MM-DD_short-description.fig
 		README.md
 ```
+
+Replace `YYYY-MM-DD_short-description` with the actual snapshot date and a brief description when you create this backup location.
 
 Do not place backups in `campaigns/`, `backend/`, or any folder the server scans for campaign state or generated files. If a backup is stored inside the repository, confirm that it is intentionally tracked and understand that `.fig` files may be large binary files. Never commit credentials, tokens, private links, or exported user data with a design backup.
 
@@ -198,7 +204,7 @@ For each snapshot:
 4. Store the `.fig` file using this filename pattern:
 
 	 ```text
-	 Geminisys_Creator_UI_Catalogue_YYYY-MM-DD_short-description.fig
+	 Geminisys_UI_Catalogue_YYYY-MM-DD_short-description.fig
 	 ```
 
 5. Record the snapshot date, Figma file URL or identifier, major changes, and any known limitations in the backup README or the project decision log.

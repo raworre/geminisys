@@ -42,7 +42,7 @@ A **source of truth** is the place that owns a particular kind of information. I
 
 ### Catalogue pages
 
-**Catalogue pages** are the named sections in the left sidebar of one Figma file. They organize the work but do not automatically affect the finished application. In this project, foundations, components, Creator screens, states and flows, handoff exports, and archived explorations each have their own page.
+**Catalogue pages** are the named sections in the left sidebar of one Figma file. They organize the work but do not automatically affect the finished application. While the project is limited to three free pages, the Geminisys master catalogue uses `01 Creator Phase`, `02 Play Phase`, and `03 Reserve`. Use Figma sections within those pages for foundations, components, Creator screens, states and flows, handoff exports, and archived explorations.
 
 ### Frame
 
@@ -56,7 +56,7 @@ A **layer** is one item in a Figma design's hierarchy, such as text, a rectangle
 
 ### Component library
 
-A **component library** is the collection of reusable UI building blocks, such as buttons, inputs, banners, chat messages, and phase indicators. In this project, the library is kept on the `02 Components` page. A **component-library milestone** is a meaningful checkpoint, such as finishing the first button, completing the form controls, or completing the shared Creator shell. Make a backup and review the library at these checkpoints.
+A **component library** is the collection of reusable UI building blocks, such as buttons, inputs, banners, chat messages, and phase indicators. In this project, the library is kept in the `COMPONENTS` section of the `01 Creator Phase` page. A **component-library milestone** is a meaningful checkpoint, such as finishing the first button, completing the form controls, or completing the shared Creator shell. Make a backup and review the library at these checkpoints.
 
 ### Main components
 
